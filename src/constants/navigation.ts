@@ -7,7 +7,7 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Inicio",
     href: "/",
     icon: Home,
-    available: false,
+    available: true,
   },
   {
     label: "Condiciones comerciales",
@@ -16,15 +16,15 @@ export const NAV_ITEMS: NavItem[] = [
     available: true,
   },
   {
-    label: "Material de marketing",
-    href: "/material-de-marketing",
+    label: "Material publicitario online",
+    href: "/material-publicitario-online",
     icon: Palette,
-    available: false,
+    available: true,
   },
   {
-    label: "Solicitud de material POP",
-    href: "/material-pop",
+    label: "Material publicitario físico",
+    href: "/material-publicitario-fisico",
     icon: Package,
-    available: false,
+    available: true,
   },
 ];

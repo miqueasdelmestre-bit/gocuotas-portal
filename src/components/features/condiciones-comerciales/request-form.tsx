@@ -14,20 +14,22 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { formatCuit } from "@/lib/validators";
 import {
   commercialConditionRequestSchema,
   type CommercialConditionRequestFormValues,
 } from "@/lib/schemas";
+import type { PlanOption } from "@/types/plan";
+
+import { RequestSummary } from "./request-summary";
 
 interface RequestFormProps {
-  planSummary: string;
+  plan: PlanOption;
   isSubmitting: boolean;
   onSubmit: (values: CommercialConditionRequestFormValues) => void;
 }
 
-export function RequestForm({ planSummary, isSubmitting, onSubmit }: RequestFormProps) {
+export function RequestForm({ plan, isSubmitting, onSubmit }: RequestFormProps) {
   const form = useForm<CommercialConditionRequestFormValues>({
     resolver: zodResolver(commercialConditionRequestSchema),
     defaultValues: {
@@ -41,10 +43,7 @@ export function RequestForm({ planSummary, isSubmitting, onSubmit }: RequestForm
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        <div className="space-y-2">
-          <Label>Plan seleccionado</Label>
-          <Input value={planSummary} readOnly disabled className="font-medium text-foreground" />
-        </div>
+        <RequestSummary plan={plan} />
 
         <FormField
           control={form.control}

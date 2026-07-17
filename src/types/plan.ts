@@ -8,6 +8,8 @@ export interface PlanOption {
   feePercentage: number;
   /** Marca la opción destacada de su grupo de cuotas (se muestra como tarjeta recomendada). */
   recommended?: boolean;
+  /** Texto que acompaña a la tarjeta recomendada, explicando para qué comercio conviene. */
+  recommendedDescription?: string;
 }
 
 export interface SixInstallmentsInfo {

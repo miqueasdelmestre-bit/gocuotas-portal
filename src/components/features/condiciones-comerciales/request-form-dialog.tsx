@@ -3,13 +3,11 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { RequestFlowStep } from "@/hooks/use-commercial-conditions-request";
 import type { CommercialConditionRequestFormValues } from "@/lib/schemas";
-import { formatPlanSummary } from "@/utils/format";
 import type { PlanOption } from "@/types/plan";
 
 import { RequestForm } from "./request-form";
@@ -40,20 +38,13 @@ export function RequestFormDialog({
         {!isSuccess && (
           <DialogHeader>
             <DialogTitle>Solicitar cambio de plan</DialogTitle>
-            <DialogDescription>
-              Completá tus datos para solicitar el nuevo plan de {formatPlanSummary(plan)}.
-            </DialogDescription>
           </DialogHeader>
         )}
 
         {isSuccess ? (
           <SuccessScreen />
         ) : (
-          <RequestForm
-            planSummary={formatPlanSummary(plan)}
-            isSubmitting={step === "submitting"}
-            onSubmit={onSubmit}
-          />
+          <RequestForm plan={plan} isSubmitting={step === "submitting"} onSubmit={onSubmit} />
         )}
       </DialogContent>
     </Dialog>

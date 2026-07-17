@@ -1,10 +1,15 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { COMMERCIAL_PLANS } from "@/constants/plans";
+import type { PlanOption } from "@/types/plan";
 import { groupPlansByInstallments } from "@/utils/plan-selectors";
 
 import { OptionsTable } from "./options-table";
 
-export function AllOptionsAccordion() {
+interface AllOptionsAccordionProps {
+  onSelectPlan: (plan: PlanOption) => void;
+}
+
+export function AllOptionsAccordion({ onSelectPlan }: AllOptionsAccordionProps) {
   const groups = groupPlansByInstallments(COMMERCIAL_PLANS);
 
   return (
@@ -14,7 +19,7 @@ export function AllOptionsAccordion() {
         <AccordionContent>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {groups.map((group) => (
-              <OptionsTable key={group.installments} group={group} />
+              <OptionsTable key={group.installments} group={group} onSelectPlan={onSelectPlan} />
             ))}
           </div>
         </AccordionContent>

@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { InicioView } from "@/components/features/inicio/inicio-view";
 
 export default function RootPage() {
-  redirect("/condiciones-comerciales");
+  return <InicioView />;
 }

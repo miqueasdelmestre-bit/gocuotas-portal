@@ -33,7 +33,7 @@ export function CommercialConditionsView() {
 
       <RecommendedPlans onSelectPlan={openRequestFlow} />
 
-      <AllOptionsAccordion />
+      <AllOptionsAccordion onSelectPlan={openRequestFlow} />
 
       <SixInstallmentsCard />
 

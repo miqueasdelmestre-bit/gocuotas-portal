@@ -8,7 +8,15 @@ import type { PlanOption, SixInstallmentsInfo } from "@/types/plan";
 export const COMMERCIAL_PLANS: PlanOption[] = [
   // 3 cuotas
   { id: "3-22", installments: 3, businessDays: 22, feePercentage: 9.9 },
-  { id: "3-28", installments: 3, businessDays: 28, feePercentage: 9.2, recommended: true },
+  {
+    id: "3-28",
+    installments: 3,
+    businessDays: 28,
+    feePercentage: 9.2,
+    recommended: true,
+    recommendedDescription:
+      "Ideal para comercios que buscan ofrecer financiación manteniendo una acreditación rápida.",
+  },
   { id: "3-34", installments: 3, businessDays: 34, feePercentage: 8.5 },
   { id: "3-45", installments: 3, businessDays: 45, feePercentage: 7.4 },
   { id: "3-55", installments: 3, businessDays: 55, feePercentage: 6.2 },
@@ -19,7 +27,15 @@ export const COMMERCIAL_PLANS: PlanOption[] = [
   // 4 cuotas
   { id: "4-22", installments: 4, businessDays: 22, feePercentage: 11.4 },
   { id: "4-28", installments: 4, businessDays: 28, feePercentage: 10.7 },
-  { id: "4-34", installments: 4, businessDays: 34, feePercentage: 10, recommended: true },
+  {
+    id: "4-34",
+    installments: 4,
+    businessDays: 34,
+    feePercentage: 10,
+    recommended: true,
+    recommendedDescription:
+      "Ideal para comercios que buscan un equilibrio entre financiación y plazo de acreditación.\n\nEs la alternativa más elegida por nuestros comercios.",
+  },
   { id: "4-45", installments: 4, businessDays: 45, feePercentage: 8.6 },
   { id: "4-55", installments: 4, businessDays: 55, feePercentage: 7.5 },
   { id: "4-65", installments: 4, businessDays: 65, feePercentage: 6.2 },
@@ -28,7 +44,15 @@ export const COMMERCIAL_PLANS: PlanOption[] = [
 
   // 5 cuotas
   { id: "5-45", installments: 5, businessDays: 45, feePercentage: 10.1 },
-  { id: "5-55", installments: 5, businessDays: 55, feePercentage: 8.8, recommended: true },
+  {
+    id: "5-55",
+    installments: 5,
+    businessDays: 55,
+    feePercentage: 8.8,
+    recommended: true,
+    recommendedDescription:
+      "Ideal para comercios que desean ofrecer una mayor financiación para potenciar sus ventas.",
+  },
   { id: "5-65", installments: 5, businessDays: 65, feePercentage: 7.4 },
   { id: "5-75", installments: 5, businessDays: 75, feePercentage: 6.3 },
   { id: "5-85", installments: 5, businessDays: 85, feePercentage: 5.1 },
