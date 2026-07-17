@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Superficie principal */
+    --background: 0 0% 100%;
+    --foreground: 235 30% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 235 30% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 235 30% 14%;
+
+    /* Acento primario GOcuotas — magenta #EE2A7B. Único punto para reskinear la app. */
+    --primary: 335 85% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Violeta secundario del brandbook — #B985EE */
+    --secondary: 278 81% 65%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 90%;
+    --muted-foreground: 220 10% 40%;
+
+    --accent: 220 20% 96%;
+    --accent-foreground: 235 30% 14%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 220 15% 90%;
+    --input: 220 15% 90%;
+    --ring: 335 85% 55%;
+
+    --radius: 0.85rem;
+
+    /* Sidebar — azul oscuro GOcuotas #1A1A38 */
+    --sidebar-background: 240 37% 16%;
+    --sidebar-foreground: 210 25% 97%;
+    --sidebar-muted: 230 15% 68%;
+    --sidebar-border: 240 30% 24%;
+    --sidebar-accent: 240 26% 22%;
+    --sidebar-accent-foreground: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
