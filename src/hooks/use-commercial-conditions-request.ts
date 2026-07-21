@@ -4,8 +4,7 @@ import { useCallback, useState } from "react";
 
 import { submitCommercialConditionRequest } from "@/services/commercial-conditions-service";
 import type { PlanOption } from "@/types/plan";
-
-export type RequestFlowStep = "form" | "submitting" | "success" | "error";
+import type { RequestFlowStep } from "@/types/request-flow";
 
 interface SubmitValues {
   cuit: string;

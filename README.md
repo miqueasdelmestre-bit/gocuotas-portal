@@ -29,9 +29,24 @@ Abrí [http://localhost:3000](http://localhost:3000).
 
 ## Variables de entorno
 
-Ver `.env.example`. Hoy solo se usa `NEXT_PUBLIC_MATERIAL_DOWNLOAD_URL` (URL del material
-de comunicación que se descarga tras enviar una solicitud). El resto queda declarado como
-referencia para las integraciones futuras (Gmail API, Google Sheets, Drive, auth, DB).
+Ver `.env.example`.
+
+- `NEXT_PUBLIC_MATERIAL_DOWNLOAD_URL` — URL del material de comunicación descargable tras
+  enviar una solicitud de condiciones comerciales.
+- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` — habilita el autocompletado de direcciones (Google
+  Places) en el pedido de material físico. Para crearla:
+  1. En [Google Cloud Console](https://console.cloud.google.com/google/maps-apis), creá o
+     elegí un proyecto y habilitá **"Places API"** (y "Maps JavaScript API").
+  2. Generá una API key en "Credenciales".
+  3. Restringila por **HTTP referrer** a tu dominio de Vercel (y a `localhost:3000` para
+     desarrollo), y limitala a las dos APIs de arriba.
+  4. Cargala como `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` en Vercel y en tu `.env.local`.
+
+  Si esta variable no está configurada, el campo de dirección sigue funcionando como texto
+  libre (sin autocompletar) — no rompe el formulario en desarrollo sin la key.
+
+El resto de las variables queda declarado como referencia para las integraciones futuras
+(Gmail API, Google Sheets, Drive, auth, DB).
 
 ## Estructura
 
@@ -52,9 +67,11 @@ src/
 
 ## Módulos
 
-Solo **Condiciones comerciales** está implementado. Inicio, Material de marketing y
-Solicitud de material POP aparecen en el sidebar con el badge "Próximamente" y no
-navegan — quedan reservados para próximas iteraciones sobre esta misma base.
+- **Inicio** — accesos directos a los demás módulos.
+- **Condiciones comerciales** — consulta de planes y solicitud de cambio.
+- **Material publicitario online** — link a la carpeta de Drive con banners y piezas gráficas.
+- **Material publicitario físico** — formulario propio (con autocompletado de dirección)
+  para pedir material POP, en vez de derivar a un formulario externo.
 
 ## Despliegue en Vercel
 

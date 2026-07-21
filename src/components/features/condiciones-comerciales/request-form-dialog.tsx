@@ -6,9 +6,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { RequestFlowStep } from "@/hooks/use-commercial-conditions-request";
 import type { CommercialConditionRequestFormValues } from "@/lib/schemas";
 import type { PlanOption } from "@/types/plan";
+import type { RequestFlowStep } from "@/types/request-flow";
 
 import { RequestForm } from "./request-form";
 import { SuccessScreen } from "./success-screen";
