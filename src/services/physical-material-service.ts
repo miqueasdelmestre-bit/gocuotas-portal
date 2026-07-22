@@ -4,18 +4,20 @@ import type {
 } from "@/types/physical-material-request";
 
 /**
- * Punto único de integración para los pedidos de material POP. Hoy simula
- * el envío; está pensado para reemplazarse por la creación del pedido en
- * el sistema interno (y la notificación al equipo de logística) sin tocar
- * los componentes que lo consumen.
+ * Envía el pedido de material POP a la API propia, que lo guarda como fila
+ * nueva en el Google Sheet configurado (ver src/services/google-sheets-service.ts).
  */
 export async function submitPhysicalMaterialRequest(
   input: PhysicalMaterialRequestInput,
 ): Promise<PhysicalMaterialRequestResult> {
-  await new Promise((resolve) => setTimeout(resolve, 900));
+  const response = await fetch("/api/physical-material-requests", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
 
   return {
-    success: true,
+    success: response.ok,
     submittedAt: new Date().toISOString(),
   };
 }

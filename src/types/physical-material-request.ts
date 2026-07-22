@@ -1,14 +1,12 @@
 import type { StructuredAddress } from "@/types/address";
 
 export interface PhysicalMaterialRequestInput {
+  brandName: string;
   cuit: string;
-  contactName: string;
-  phone: string;
   email: string;
-  materialType: string;
-  notes?: string;
+  phone: string;
   address: StructuredAddress;
-  addressDetail?: string;
+  branchCount: number;
 }
 
 export interface PhysicalMaterialRequestResult {

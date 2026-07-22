@@ -16,16 +16,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { PHYSICAL_MATERIAL_TYPES } from "@/constants/physical-material-types";
-import { formatCuit } from "@/lib/validators";
-import {
   physicalMaterialRequestSchema,
   type PhysicalMaterialRequestFormValues,
 } from "@/lib/schemas";
@@ -37,6 +27,10 @@ interface PhysicalMaterialRequestFormProps {
   onSubmit: (values: PhysicalMaterialRequestInput) => void;
 }
 
+function FieldExample({ children }: { children: React.ReactNode }) {
+  return <p className="text-xs text-muted-foreground">Ej: {children}</p>;
+}
+
 export function PhysicalMaterialRequestForm({
   isSubmitting,
   onSubmit,
@@ -46,26 +40,22 @@ export function PhysicalMaterialRequestForm({
   const form = useForm<PhysicalMaterialRequestFormValues>({
     resolver: zodResolver(physicalMaterialRequestSchema),
     defaultValues: {
+      brandName: "",
       cuit: "",
-      contactName: "",
-      phone: "",
       email: "",
-      materialType: "",
-      notes: "",
+      phone: "",
       addressText: "",
-      addressDetail: "",
+      branchCount: 1,
     },
   });
 
   function handleSubmit(values: PhysicalMaterialRequestFormValues) {
     onSubmit({
+      brandName: values.brandName,
       cuit: values.cuit,
-      contactName: values.contactName,
-      phone: values.phone,
       email: values.email,
-      materialType: values.materialType,
-      notes: values.notes,
-      addressDetail: values.addressDetail,
+      phone: values.phone,
+      branchCount: values.branchCount,
       address: structuredAddress ?? { formattedAddress: values.addressText },
     });
   }
@@ -73,89 +63,75 @@ export function PhysicalMaterialRequestForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
-        <div className="grid gap-5 sm:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="cuit"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>CUIT</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="30-12345678-9"
-                    inputMode="numeric"
-                    {...field}
-                    onChange={(event) => field.onChange(formatCuit(event.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="contactName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Persona de contacto</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nombre y apellido" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Teléfono</FormLabel>
-                <FormControl>
-                  <Input placeholder="11 2345 6789" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Correo electrónico</FormLabel>
-                <FormControl>
-                  <Input type="email" placeholder="nombre@comercio.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="brandName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nombre de tu marca</FormLabel>
+              <FormControl>
+                <Input placeholder="Nombre de tu marca" {...field} />
+              </FormControl>
+              <FieldExample>Zapatillas Pomelo</FieldExample>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
-          name="materialType"
+          name="cuit"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Tipo de material</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Elegí un tipo de material" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {PHYSICAL_MATERIAL_TYPES.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <FormLabel className="font-bold">
+                CUIT de tu razón social <span className="font-normal">(sin - ni espacios)</span>
+              </FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="20123456789"
+                  inputMode="numeric"
+                  {...field}
+                  onChange={(event) => field.onChange(event.target.value.replace(/[^\d]/g, ""))}
+                />
+              </FormControl>
+              <FieldExample>20123456789</FieldExample>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Mail</FormLabel>
+              <FormControl>
+                <Input type="email" placeholder="nombre@tumarca.com" {...field} />
+              </FormControl>
+              <FieldExample>contacto@tumarca.com</FieldExample>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="font-bold">
+                Teléfono <span className="font-normal">(sin 0 ni 15)</span>
+              </FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="1123456789"
+                  inputMode="numeric"
+                  {...field}
+                  onChange={(event) => field.onChange(event.target.value.replace(/[^\d]/g, ""))}
+                />
+              </FormControl>
+              <FieldExample>1123456789</FieldExample>
               <FormMessage />
             </FormItem>
           )}
@@ -166,7 +142,7 @@ export function PhysicalMaterialRequestForm({
           name="addressText"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Dirección de entrega</FormLabel>
+              <FormLabel>Dirección (calle y altura)</FormLabel>
               <FormControl>
                 <AddressAutocompleteInput
                   id={field.name}
@@ -178,6 +154,7 @@ export function PhysicalMaterialRequestForm({
                   }}
                 />
               </FormControl>
+              <FieldExample>Av. Corrientes 1234 (elegí la opción correcta de la lista)</FieldExample>
               <FormMessage />
             </FormItem>
           )}
@@ -185,27 +162,14 @@ export function PhysicalMaterialRequestForm({
 
         <FormField
           control={form.control}
-          name="addressDetail"
+          name="branchCount"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Piso, depto o referencia (opcional)</FormLabel>
+              <FormLabel>Cantidad de sucursales</FormLabel>
               <FormControl>
-                <Input placeholder="Piso 3, depto B / al lado de..." {...field} />
+                <Input type="number" min={1} step={1} placeholder="1" {...field} />
               </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="notes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Comentarios (opcional)</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Cantidad aproximada, aclaraciones, etc." {...field} />
-              </FormControl>
+              <FieldExample>3</FieldExample>
               <FormMessage />
             </FormItem>
           )}

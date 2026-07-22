@@ -45,8 +45,30 @@ Ver `.env.example`.
   Si esta variable no está configurada, el campo de dirección sigue funcionando como texto
   libre (sin autocompletar) — no rompe el formulario en desarrollo sin la key.
 
-El resto de las variables queda declarado como referencia para las integraciones futuras
-(Gmail API, Google Sheets, Drive, auth, DB).
+- `GOOGLE_SHEETS_SPREADSHEET_ID`, `GOOGLE_SERVICE_ACCOUNT_EMAIL`,
+  `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` — cada pedido de material físico se guarda como fila
+  nueva en un Google Sheet. Para conectarlo:
+  1. En [Google Cloud Console](https://console.cloud.google.com/iam-admin/serviceaccounts),
+     con el mismo proyecto que usaste para Maps, creá una **cuenta de servicio** (Service
+     Account) — no hace falta ningún rol de proyecto especial.
+  2. Entrá a la cuenta creada → pestaña **"Keys"** → **"Add key" → "Create new key"** → tipo
+     **JSON** → se descarga un archivo `.json`.
+  3. De ese archivo copiá:
+     - `client_email` → `GOOGLE_SERVICE_ACCOUNT_EMAIL`
+     - `private_key` → `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` (pegalo tal cual, con los `\n`
+       literales — el código los convierte a saltos de línea reales)
+  4. Habilitá **"Google Sheets API"** en
+     [la Biblioteca de APIs](https://console.cloud.google.com/apis/library/sheets.googleapis.com)
+     de ese proyecto.
+  5. Abrí el Google Sheet donde querés guardar los pedidos → **Compartir** → agregá el
+     `client_email` de la cuenta de servicio con permiso de **Editor**.
+  6. El **Sheet ID** es la parte de la URL entre `/d/` y `/edit`:
+     `docs.google.com/spreadsheets/d/`**`ESTE_ES_EL_ID`**`/edit` → `GOOGLE_SHEETS_SPREADSHEET_ID`.
+  7. La primera fila del Sheet (encabezados) debería tener, en orden:
+     `Fecha | Marca | CUIT | Mail | Teléfono | Dirección | Sucursales`.
+
+  Sin estas tres variables configuradas, el envío del formulario de material físico falla
+  (no hay simulación de respaldo, ya que es una integración real).
 
 ## Estructura
 
@@ -80,15 +102,20 @@ src/
 3. Cargá las variables de entorno de `.env.example` que correspondan en el proyecto de Vercel.
 4. Deploy.
 
+## Integraciones
+
+- **Google Sheets** (activa): los pedidos de material físico se guardan como filas en un
+  Sheet real vía `src/services/google-sheets-service.ts` (cuenta de servicio) y la ruta
+  `src/app/api/physical-material-requests/route.ts`.
+
 ## Preparado para integrar (no implementado todavía)
 
 - **Gmail API**: notificar al equipo comercial cuando llega una solicitud.
-- **Google Sheets API**: registrar cada solicitud en una planilla de seguimiento.
 - **Google Drive**: alojar el material de comunicación descargable.
 - **Autenticación**: proteger el portal por comercio.
-- **Base de datos**: persistir solicitudes en vez de simularlas.
+- **Base de datos**: persistir las solicitudes de condiciones comerciales (hoy simuladas).
 
-El punto de entrada para todo esto es
+El punto de entrada para condiciones comerciales es
 [`src/services/commercial-conditions-service.ts`](src/services/commercial-conditions-service.ts)
-y [`src/services/api-client.ts`](src/services/api-client.ts) — hoy el service simula el
+y [`src/services/api-client.ts`](src/services/api-client.ts) — hoy ese service simula el
 envío; se reemplaza sin tocar componentes ni hooks.
