@@ -24,7 +24,6 @@ export function AddressAutocompleteInput({
   return (
     <div className="space-y-1.5">
       <Input
-        ref={inputRef}
         value={value}
         onChange={(event) => onValueChange(event.target.value)}
         onKeyDown={(event) => {
@@ -35,6 +34,9 @@ export function AddressAutocompleteInput({
         placeholder={placeholder ?? "Calle, altura y localidad"}
         autoComplete="off"
         {...rest}
+        // Va después de {...rest}: en React 19 el `ref` que Radix Slot (FormControl)
+        // inyecta viaja como prop normal y, si quedara antes, el spread lo pisaría.
+        ref={inputRef}
       />
       {!isAvailable && (
         <p className="text-xs text-muted-foreground">
