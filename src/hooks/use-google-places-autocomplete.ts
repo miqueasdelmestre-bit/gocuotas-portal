@@ -89,5 +89,5 @@ export function useGooglePlacesAutocomplete(onPlaceSelected: (address: Structure
     };
   }, [inputElement]);
 
-  return { isAvailable: Boolean(GOOGLE_MAPS_API_KEY), isReady, inputRef };
+  return { isAvailable: Boolean(GOOGLE_MAPS_API_KEY), isReady, inputRef, inputElement };
 }

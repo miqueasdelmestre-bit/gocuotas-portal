@@ -1,11 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { Input } from "@/components/ui/input";
 import { useGooglePlacesAutocomplete } from "@/hooks/use-google-places-autocomplete";
 import type { StructuredAddress } from "@/types/address";
 
 interface AddressAutocompleteInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange"> {
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "defaultValue"> {
   value: string;
   onValueChange: (value: string) => void;
   onAddressSelected: (address: StructuredAddress) => void;
@@ -19,12 +21,28 @@ export function AddressAutocompleteInput({
   onKeyDown,
   ...rest
 }: AddressAutocompleteInputProps) {
-  const { isAvailable, inputRef } = useGooglePlacesAutocomplete(onAddressSelected);
+  const handlePlaceSelected = (address: StructuredAddress) => {
+    onValueChange(address.formattedAddress);
+    onAddressSelected(address);
+  };
+
+  const { isAvailable, inputRef, inputElement } = useGooglePlacesAutocomplete(handlePlaceSelected);
+
+  // El input queda "no controlado" a propósito: si React le impone `value` en
+  // cada tecla, pisa la manipulación interna del DOM que hace el widget de
+  // Google al reposicionar su lista de sugerencias y el campo pierde el foco
+  // a la primera letra. Solo lo sincronizamos cuando el valor cambia desde
+  // afuera (por ejemplo, al elegir una sugerencia o resetear el formulario).
+  useEffect(() => {
+    if (inputElement && inputElement.value !== value) {
+      inputElement.value = value;
+    }
+  }, [value, inputElement]);
 
   return (
     <div className="space-y-1.5">
       <Input
-        value={value}
+        defaultValue={value}
         onChange={(event) => onValueChange(event.target.value)}
         onKeyDown={(event) => {
           // Evita que Enter (para elegir una sugerencia de Google) mande el formulario.
@@ -34,8 +52,6 @@ export function AddressAutocompleteInput({
         placeholder={placeholder ?? "Calle, altura y localidad"}
         autoComplete="off"
         {...rest}
-        // Va después de {...rest}: en React 19 el `ref` que Radix Slot (FormControl)
-        // inyecta viaja como prop normal y, si quedara antes, el spread lo pisaría.
         ref={inputRef}
       />
       {!isAvailable && (
