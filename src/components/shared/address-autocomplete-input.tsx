@@ -1,7 +1,5 @@
 "use client";
 
-import { useRef } from "react";
-
 import { Input } from "@/components/ui/input";
 import { useGooglePlacesAutocomplete } from "@/hooks/use-google-places-autocomplete";
 import type { StructuredAddress } from "@/types/address";
@@ -21,8 +19,7 @@ export function AddressAutocompleteInput({
   onKeyDown,
   ...rest
 }: AddressAutocompleteInputProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const { isAvailable } = useGooglePlacesAutocomplete(inputRef, onAddressSelected);
+  const { isAvailable, inputRef } = useGooglePlacesAutocomplete(onAddressSelected);
 
   return (
     <div className="space-y-1.5">

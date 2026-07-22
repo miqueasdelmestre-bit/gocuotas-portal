@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { loadGoogleMapsScript } from "@/lib/google-maps";
 import type { StructuredAddress } from "@/types/address";
@@ -37,26 +37,34 @@ function parsePlace(place: google.maps.places.PlaceResult): StructuredAddress {
  * Ata Google Places Autocomplete a un input. Si no hay API key configurada
  * (`NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`), no hace nada y el input queda como
  * campo de texto libre — sin romper el formulario en local sin la key.
+ *
+ * Usa un callback ref (en vez de un `useRef` + `useEffect` con dependencia
+ * estable) para garantizar que el efecto corra justo cuando el input se
+ * monta de verdad — con un `useRef` normal, si `current` todavía es `null`
+ * en el primer render, el efecto nunca se vuelve a ejecutar porque la
+ * identidad del ref no cambia nunca.
  */
-export function useGooglePlacesAutocomplete(
-  inputRef: React.RefObject<HTMLInputElement | null>,
-  onPlaceSelected: (address: StructuredAddress) => void,
-) {
+export function useGooglePlacesAutocomplete(onPlaceSelected: (address: StructuredAddress) => void) {
+  const [inputElement, setInputElement] = useState<HTMLInputElement | null>(null);
   const [isReady, setIsReady] = useState(false);
   const onPlaceSelectedRef = useRef(onPlaceSelected);
   onPlaceSelectedRef.current = onPlaceSelected;
 
+  const inputRef = useCallback((node: HTMLInputElement | null) => {
+    setInputElement(node);
+  }, []);
+
   useEffect(() => {
-    if (!GOOGLE_MAPS_API_KEY || !inputRef.current) return;
+    if (!GOOGLE_MAPS_API_KEY || !inputElement) return;
 
     let isMounted = true;
     let autocomplete: google.maps.places.Autocomplete | null = null;
 
     loadGoogleMapsScript(GOOGLE_MAPS_API_KEY)
       .then(() => {
-        if (!isMounted || !inputRef.current) return;
+        if (!isMounted) return;
 
-        autocomplete = new google.maps.places.Autocomplete(inputRef.current, {
+        autocomplete = new google.maps.places.Autocomplete(inputElement, {
           componentRestrictions: { country: "ar" },
           fields: ["address_components", "formatted_address", "place_id", "geometry"],
           types: ["address"],
@@ -79,7 +87,7 @@ export function useGooglePlacesAutocomplete(
         google.maps.event.clearInstanceListeners(autocomplete);
       }
     };
-  }, [inputRef]);
+  }, [inputElement]);
 
-  return { isAvailable: Boolean(GOOGLE_MAPS_API_KEY), isReady };
+  return { isAvailable: Boolean(GOOGLE_MAPS_API_KEY), isReady, inputRef };
 }
