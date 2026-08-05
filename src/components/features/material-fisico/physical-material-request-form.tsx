@@ -51,6 +51,7 @@ export function PhysicalMaterialRequestForm({
     defaultValues: {
       brandName: "",
       cuit: "",
+      confirmCuit: "",
       email: "",
       phone: "",
       addressText: "",
@@ -104,6 +105,30 @@ export function PhysicalMaterialRequestForm({
                 />
               </FormControl>
               <FieldExample>20123456789</FieldExample>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="confirmCuit"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="font-bold">Confirmá tu CUIT</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="20123456789"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  onPaste={(event) => event.preventDefault()}
+                  {...field}
+                  onChange={(event) => field.onChange(event.target.value.replace(/[^\d]/g, ""))}
+                />
+              </FormControl>
+              <p className="text-xs text-muted-foreground">
+                Volvé a escribirlo para confirmar que no haya errores de tipeo.
+              </p>
               <FormMessage />
             </FormItem>
           )}

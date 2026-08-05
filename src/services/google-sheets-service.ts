@@ -34,7 +34,7 @@ export async function appendSheetRow(values: Array<string | number>): Promise<vo
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: SPREADSHEET_ID,
-    range: "A:G",
+    range: "A:I",
     valueInputOption: "USER_ENTERED",
     insertDataOption: "INSERT_ROWS",
     requestBody: { values: [values] },

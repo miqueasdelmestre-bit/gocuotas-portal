@@ -65,10 +65,27 @@ Ver `.env.example`.
   6. El **Sheet ID** es la parte de la URL entre `/d/` y `/edit`:
      `docs.google.com/spreadsheets/d/`**`ESTE_ES_EL_ID`**`/edit` → `GOOGLE_SHEETS_SPREADSHEET_ID`.
   7. La primera fila del Sheet (encabezados) debería tener, en orden:
-     `Fecha | Marca | CUIT | Mail | Teléfono | Dirección | Sucursales`.
+     `Fecha | Marca | CUIT | Mail | Teléfono | Dirección | Sucursales | CUIT verificado en GOcuotas | Nombre registrado`.
 
   Sin estas tres variables configuradas, el envío del formulario de material físico falla
   (no hay simulación de respaldo, ya que es una integración real).
+
+- `DATABRICKS_HOST`, `DATABRICKS_TOKEN`, `DATABRICKS_WAREHOUSE_ID` — habilitan la
+  verificación interna de CUIT contra `prd.gold_dw.dim_users_commerce` (ver
+  [`src/services/databricks-service.ts`](src/services/databricks-service.ts)). Usan las
+  mismas credenciales de `~/Documents/databricks-go-config.env`.
+
+  **Importante — límite de seguridad que no hay que cruzar:** el resultado de esta
+  verificación (si el CUIT corresponde a un comercio registrado y su nombre de fantasía)
+  se guarda **únicamente** en las últimas dos columnas del Google Sheet. Nunca debe
+  devolverse en la respuesta de `/api/physical-material-requests`, ni mostrarse en el
+  formulario, ni cambiar el comportamiento visible para el comercio — el resultado sea
+  Sí o No, el formulario siempre se envía igual y muestra el mismo mensaje de éxito. Lo
+  contrario (bloquear o avisar distinto cuando no matchea) convierte el formulario en una
+  forma de "adivinar" qué CUITs son comercios reales de GOcuotas.
+
+  Sin estas variables, la solicitud se guarda igual, simplemente sin verificar (columnas
+  vacías).
 
 ## Estructura
 

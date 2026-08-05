@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { appendSheetRow } from "@/services/google-sheets-service";
+import { lookupCuitInGocuotas } from "@/services/databricks-service";
 
 const requestBodySchema = z.object({
   brandName: z.string().min(1),
@@ -21,6 +22,10 @@ export async function POST(request: Request) {
 
   const { brandName, cuit, email, phone, branchCount, address } = parsed.data;
 
+  // Verificación interna contra GOcuotas — el resultado se guarda solo en el
+  // Sheet, nunca viaja de vuelta en esta respuesta ni se muestra al comercio.
+  const verification = await lookupCuitInGocuotas(cuit);
+
   try {
     await appendSheetRow([
       new Date().toISOString(),
@@ -30,6 +35,8 @@ export async function POST(request: Request) {
       phone,
       address.formattedAddress,
       branchCount,
+      verification.isRegisteredInGocuotas ? "Sí" : "No",
+      verification.businessName ?? "",
     ]);
 
     return NextResponse.json({ success: true });
