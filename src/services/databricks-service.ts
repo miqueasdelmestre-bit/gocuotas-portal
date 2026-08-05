@@ -46,8 +46,10 @@ export async function lookupCuitInGocuotas(cuit: string): Promise<CuitLookupResu
         // Un mismo CUIT puede tener más de un comercio registrado (duplicados).
         // Ante esa duda, se prioriza el que tenga operaciones entregadas más
         // recientes — es el que realmente está operando hoy, y de ahí sale la
-        // cantidad máxima de cuotas que ofrece.
-        statement: `SELECT c.user_commerce_max_number_of_installments FROM prd.gold_dw.dim_users_commerce c WHERE c.user_commerce_cuit = ${digitsOnlyCuit} AND c.discarded_at IS NULL ORDER BY (SELECT MAX(o.delivered_at) FROM prd.gold_dw.fact_go_cuotas_orders o WHERE o.user_commerce_id = c.user_commerce_id AND o.delivered_at IS NOT NULL AND o.discarded_at IS NULL) DESC NULLS LAST LIMIT 1`,
+        // cantidad máxima de cuotas que ofrece. La subquery correlacionada
+        // tiene que ir en el SELECT (con alias) y no directo en el ORDER BY:
+        // Spark SQL no soporta correlated scalar subqueries ahí.
+        statement: `SELECT c.user_commerce_max_number_of_installments, (SELECT MAX(o.delivered_at) FROM prd.gold_dw.fact_go_cuotas_orders o WHERE o.user_commerce_id = c.user_commerce_id AND o.delivered_at IS NOT NULL AND o.discarded_at IS NULL) AS last_order FROM prd.gold_dw.dim_users_commerce c WHERE c.user_commerce_cuit = ${digitsOnlyCuit} AND c.discarded_at IS NULL ORDER BY last_order DESC NULLS LAST LIMIT 1`,
         // 50s es el máximo que admite la API de Databricks para esperar en la
         // misma request — hace falta, porque el warehouse suele estar
         // "dormido" (auto-suspendido) y tarda en despertar si no hubo
@@ -64,7 +66,12 @@ export async function lookupCuitInGocuotas(cuit: string): Promise<CuitLookupResu
     // Si el warehouse todavía estaba despertando, la consulta puede seguir
     // "PENDING" incluso después de esperar el máximo — no hay resultado,
     // no es un error: simplemente no llegamos a verificar esta vez.
-    if (data?.status?.state !== "SUCCEEDED") return NOT_VERIFIED_RESULT;
+    if (data?.status?.state !== "SUCCEEDED") {
+      if (data?.status?.state === "FAILED") {
+        console.error("Error en la consulta de verificación de CUIT a Databricks", data.status.error);
+      }
+      return NOT_VERIFIED_RESULT;
+    }
 
     const row = data?.result?.data_array?.[0];
 
