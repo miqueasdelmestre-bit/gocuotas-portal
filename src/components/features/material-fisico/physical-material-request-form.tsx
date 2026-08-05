@@ -59,6 +59,7 @@ export function PhysicalMaterialRequestForm({
       phone: "",
       addressText: "",
       branchCount: 1,
+      floorOrUnit: "",
     },
   });
 
@@ -71,6 +72,7 @@ export function PhysicalMaterialRequestForm({
       email: values.email,
       phone: values.phone,
       branchCount: values.branchCount,
+      floorOrUnit: values.floorOrUnit?.trim() || undefined,
       address: structuredAddress ?? { formattedAddress: values.addressText },
     });
   }
@@ -193,6 +195,21 @@ export function PhysicalMaterialRequestForm({
                 />
               </FormControl>
               <FieldExample>Av. Corrientes 1234 (elegí la opción correcta de la lista)</FieldExample>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="floorOrUnit"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Piso, depto o local (opcional)</FormLabel>
+              <FormControl>
+                <Input placeholder="Piso 3, depto A" {...field} />
+              </FormControl>
+              <FieldExample>Piso 3, depto A</FieldExample>
               <FormMessage />
             </FormItem>
           )}

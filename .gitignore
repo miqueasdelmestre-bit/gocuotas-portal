@@ -29,6 +29,12 @@ yarn-error.log*
 # vercel
 .vercel
 
+# credenciales que nunca deben commitearse (cuentas de servicio de Google, etc.)
+*-service-account*.json
+*serviceaccount*.json
+*credentials*.json
+analytical-camp-*.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

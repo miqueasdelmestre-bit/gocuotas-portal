@@ -16,6 +16,7 @@ const DATABRICKS_WAREHOUSE_ID = process.env.DATABRICKS_WAREHOUSE_ID;
 export interface CuitLookupResult {
   isRegisteredInGocuotas: boolean;
   businessName?: string;
+  maxInstallments?: number;
 }
 
 const NOT_VERIFIED_RESULT: CuitLookupResult = { isRegisteredInGocuotas: false };
@@ -43,7 +44,7 @@ export async function lookupCuitInGocuotas(cuit: string): Promise<CuitLookupResu
       },
       body: JSON.stringify({
         warehouse_id: DATABRICKS_WAREHOUSE_ID,
-        statement: `SELECT user_commerce_business_name FROM prd.gold_dw.dim_users_commerce WHERE user_commerce_cuit = ${digitsOnlyCuit} AND discarded_at IS NULL LIMIT 1`,
+        statement: `SELECT user_commerce_business_name, user_commerce_max_number_of_installments FROM prd.gold_dw.dim_users_commerce WHERE user_commerce_cuit = ${digitsOnlyCuit} AND discarded_at IS NULL LIMIT 1`,
         wait_timeout: "10s",
       }),
       signal: AbortSignal.timeout(12000),
@@ -56,7 +57,13 @@ export async function lookupCuitInGocuotas(cuit: string): Promise<CuitLookupResu
 
     if (!row) return NOT_VERIFIED_RESULT;
 
-    return { isRegisteredInGocuotas: true, businessName: row[0] };
+    const maxInstallments = row[1] != null ? Number(row[1]) : undefined;
+
+    return {
+      isRegisteredInGocuotas: true,
+      businessName: row[0],
+      maxInstallments: Number.isFinite(maxInstallments) ? maxInstallments : undefined,
+    };
   } catch {
     // Falla silenciosa: si Databricks no responde, la solicitud igual se
     // guarda (sin verificación), nunca se bloquea el pedido del comercio.

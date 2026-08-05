@@ -7,6 +7,7 @@ export interface PhysicalMaterialRequestInput {
   phone: string;
   address: StructuredAddress;
   branchCount: number;
+  floorOrUnit?: string;
 }
 
 export interface PhysicalMaterialRequestResult {

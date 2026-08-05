@@ -48,6 +48,7 @@ export const physicalMaterialRequestSchema = z.object({
     .number({ invalid_type_error: "Ingresá la cantidad de sucursales" })
     .int("Ingresá un número entero")
     .min(1, "Ingresá al menos 1 sucursal"),
+  floorOrUnit: z.string().optional(),
 });
 
 export type PhysicalMaterialRequestFormValues = z.infer<typeof physicalMaterialRequestSchema>;

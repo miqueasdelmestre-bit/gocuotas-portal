@@ -64,11 +64,28 @@ Ver `.env.example`.
      `client_email` de la cuenta de servicio con permiso de **Editor**.
   6. El **Sheet ID** es la parte de la URL entre `/d/` y `/edit`:
      `docs.google.com/spreadsheets/d/`**`ESTE_ES_EL_ID`**`/edit` → `GOOGLE_SHEETS_SPREADSHEET_ID`.
-  7. La primera fila del Sheet (encabezados) debería tener, en orden:
-     `Fecha | Marca | CUIT | Mail | Teléfono | Dirección | Sucursales | CUIT verificado en GOcuotas | Nombre registrado`.
+  7. La hoja (tab) donde se escribe se llama **"Sheet1"** y sus columnas, en orden, son un
+     template de envío/logística:
+     `Peso (grs) | Valor declarado ($ S/IVA) | Numero interno | Referencia | Nombre | Apellido | DNI | Email | Telefono | Calle | Numero | Piso | Departamento | Observaciones | Provincia / Localidad / CP`.
+  8. Además necesita un segundo tab llamado **"NOMENCLADOR"**, con columna A = código postal
+     y columna B = el string ya formateado `PROVINCIA / LOCALIDAD / CP` (por ejemplo
+     `1001` → `BUENOS AIRES / C.A.B.A. / 1001`). Se usa para completar la última columna a
+     partir del código postal que devuelve el autocompletado de Google.
 
   Sin estas tres variables configuradas, el envío del formulario de material físico falla
   (no hay simulación de respaldo, ya que es una integración real).
+
+  Reglas de armado de la fila (ver
+  [`src/app/api/physical-material-requests/route.ts`](src/app/api/physical-material-requests/route.ts)):
+  - **Peso** y **Valor declarado** son fijos (90 grs / $6.000), definidos en el código —
+    el comercio no los completa.
+  - **Numero interno** = cantidad de cuotas que GOcuotas tiene registrada para ese CUIT +
+    la palabra "cuotas" (vacío si el CUIT no matchea).
+  - **Nombre** y **Apellido** llevan el mismo valor: el nombre de fantasía registrado en
+    GOcuotas si el CUIT matchea, o si no, el nombre de marca que completó el comercio.
+  - **DNI** se deriva del CUIT (los 8 dígitos del medio, sacando los 2 primeros y el último).
+  - **Referencia**, **Piso** y **Observaciones** siempre van vacías. **Departamento** lleva
+    el campo opcional "Piso, depto o local" del formulario (nunca el valor `"0"`).
 
 - `DATABRICKS_HOST`, `DATABRICKS_TOKEN`, `DATABRICKS_WAREHOUSE_ID` — habilitan la
   verificación interna de CUIT contra `prd.gold_dw.dim_users_commerce` (ver
@@ -76,11 +93,12 @@ Ver `.env.example`.
   mismas credenciales de `~/Documents/databricks-go-config.env`.
 
   **Importante — límite de seguridad que no hay que cruzar:** el resultado de esta
-  verificación (si el CUIT corresponde a un comercio registrado y su nombre de fantasía)
-  se guarda **únicamente** en las últimas dos columnas del Google Sheet. Nunca debe
-  devolverse en la respuesta de `/api/physical-material-requests`, ni mostrarse en el
-  formulario, ni cambiar el comportamiento visible para el comercio — el resultado sea
-  Sí o No, el formulario siempre se envía igual y muestra el mismo mensaje de éxito. Lo
+  verificación (si el CUIT corresponde a un comercio registrado, su nombre de fantasía y
+  su cantidad de cuotas) solo se usa para completar columnas internas del Google Sheet.
+  Nunca debe devolverse en la respuesta de `/api/physical-material-requests`, ni
+  mostrarse en el formulario, ni cambiar el comportamiento visible para el comercio — el
+  resultado sea Sí o No, el formulario siempre se envía igual y muestra el mismo mensaje
+  de éxito. Lo
   contrario (bloquear o avisar distinto cuando no matchea) convierte el formulario en una
   forma de "adivinar" qué CUITs son comercios reales de GOcuotas.
 
