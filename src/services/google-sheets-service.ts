@@ -12,12 +12,14 @@ const SERVICE_ACCOUNT_PRIVATE_KEY = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_K
 const PHYSICAL_MATERIAL_SHEET_RANGE = "Sheet1!A:O";
 const NOMENCLADOR_SHEET_RANGE = "NOMENCLADOR!A:B";
 
-function assertConfigured(): asserts SPREADSHEET_ID is string {
+function requireConfig(): { spreadsheetId: string } {
   if (!SPREADSHEET_ID || !SERVICE_ACCOUNT_EMAIL || !SERVICE_ACCOUNT_PRIVATE_KEY) {
     throw new Error(
       "Google Sheets no está configurado: faltan GOOGLE_SHEETS_SPREADSHEET_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL o GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY",
     );
   }
+
+  return { spreadsheetId: SPREADSHEET_ID };
 }
 
 function getSheetsClient() {
@@ -36,12 +38,12 @@ function getSheetsClient() {
  * llamarse desde el cliente.
  */
 export async function appendPhysicalMaterialRow(values: Array<string | number>): Promise<void> {
-  assertConfigured();
+  const { spreadsheetId } = requireConfig();
 
   const sheets = getSheetsClient();
 
   await sheets.spreadsheets.values.append({
-    spreadsheetId: SPREADSHEET_ID,
+    spreadsheetId,
     range: PHYSICAL_MATERIAL_SHEET_RANGE,
     valueInputOption: "USER_ENTERED",
     insertDataOption: "INSERT_ROWS",
@@ -57,8 +59,10 @@ export async function appendPhysicalMaterialRow(values: Array<string | number>):
 export async function lookupProvinciaLocalidadCp(postalCode: string | undefined): Promise<string> {
   if (!postalCode) return "";
 
+  let spreadsheetId: string;
+
   try {
-    assertConfigured();
+    ({ spreadsheetId } = requireConfig());
   } catch {
     return "";
   }
@@ -66,7 +70,7 @@ export async function lookupProvinciaLocalidadCp(postalCode: string | undefined)
   const sheets = getSheetsClient();
 
   const response = await sheets.spreadsheets.values.get({
-    spreadsheetId: SPREADSHEET_ID,
+    spreadsheetId,
     range: NOMENCLADOR_SHEET_RANGE,
   });
 
