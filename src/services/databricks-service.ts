@@ -48,14 +48,24 @@ export async function lookupCuitInGocuotas(cuit: string): Promise<CuitLookupResu
         // recientes — es el que realmente está operando hoy, y de ahí sale la
         // cantidad máxima de cuotas que ofrece.
         statement: `SELECT c.user_commerce_max_number_of_installments FROM prd.gold_dw.dim_users_commerce c WHERE c.user_commerce_cuit = ${digitsOnlyCuit} AND c.discarded_at IS NULL ORDER BY (SELECT MAX(o.delivered_at) FROM prd.gold_dw.fact_go_cuotas_orders o WHERE o.user_commerce_id = c.user_commerce_id AND o.delivered_at IS NOT NULL AND o.discarded_at IS NULL) DESC NULLS LAST LIMIT 1`,
-        wait_timeout: "10s",
+        // 50s es el máximo que admite la API de Databricks para esperar en la
+        // misma request — hace falta, porque el warehouse suele estar
+        // "dormido" (auto-suspendido) y tarda en despertar si no hubo
+        // consultas recientes.
+        wait_timeout: "50s",
       }),
-      signal: AbortSignal.timeout(12000),
+      signal: AbortSignal.timeout(55000),
     });
 
     if (!response.ok) return NOT_VERIFIED_RESULT;
 
     const data = await response.json();
+
+    // Si el warehouse todavía estaba despertando, la consulta puede seguir
+    // "PENDING" incluso después de esperar el máximo — no hay resultado,
+    // no es un error: simplemente no llegamos a verificar esta vez.
+    if (data?.status?.state !== "SUCCEEDED") return NOT_VERIFIED_RESULT;
+
     const row = data?.result?.data_array?.[0];
 
     if (!row) return NOT_VERIFIED_RESULT;

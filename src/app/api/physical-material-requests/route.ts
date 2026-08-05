@@ -4,6 +4,11 @@ import { z } from "zod";
 import { appendPhysicalMaterialRows, lookupProvinciaLocalidadCp } from "@/services/google-sheets-service";
 import { lookupCuitInGocuotas } from "@/services/databricks-service";
 
+// El warehouse de Databricks puede tardar en "despertar" (auto-suspendido)
+// y la consulta de verificación de CUIT espera hasta 50s por eso — el
+// límite por defecto de la función (10s) no alcanzaría.
+export const maxDuration = 60;
+
 const requestBodySchema = z.object({
   brandName: z.string().min(1),
   cuit: z.string().min(1),
@@ -41,8 +46,11 @@ export async function POST(request: Request) {
 
   // Verificación interna contra GOcuotas — el resultado se guarda solo en el
   // Sheet, nunca viaja de vuelta en esta respuesta ni se muestra al comercio.
-  const verification = await lookupCuitInGocuotas(cuit);
-  const provinciaLocalidadCp = await lookupProvinciaLocalidadCp(address.postalCode);
+  // Corren en paralelo porque son independientes entre sí.
+  const [verification, provinciaLocalidadCp] = await Promise.all([
+    lookupCuitInGocuotas(cuit),
+    lookupProvinciaLocalidadCp(address.postalCode),
+  ]);
 
   const numeroInterno = verification.maxInstallments
     ? `${verification.maxInstallments} cuotas`
