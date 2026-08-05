@@ -1,22 +1,31 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { usePhysicalMaterialRequest } from "@/hooks/use-physical-material-request";
 
 import { PhysicalMaterialRequestForm } from "./physical-material-request-form";
-import { PhysicalMaterialSuccessScreen } from "./physical-material-success-screen";
 
 export function PhysicalMaterialRequestView() {
-  const { step, submitRequest } = usePhysicalMaterialRequest();
+  const { step, submitRequest, reset } = usePhysicalMaterialRequest();
+  // Cambiar la key remonta el formulario con los campos en blanco.
+  const [formResetKey, setFormResetKey] = useState(0);
 
   useEffect(() => {
+    if (step === "success") {
+      toast.success(
+        "¡Recibimos tu pedido! En las próximas horas vas a recibir el seguimiento por mail.",
+      );
+      setFormResetKey((key) => key + 1);
+      reset();
+    }
+
     if (step === "error") {
       toast.error("No pudimos enviar tu pedido. Probá de nuevo en unos minutos.");
     }
-  }, [step]);
+  }, [step, reset]);
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
@@ -32,14 +41,11 @@ export function PhysicalMaterialRequestView() {
 
       <Card className="max-w-2xl">
         <CardContent className="p-6">
-          {step === "success" ? (
-            <PhysicalMaterialSuccessScreen />
-          ) : (
-            <PhysicalMaterialRequestForm
-              isSubmitting={step === "submitting"}
-              onSubmit={submitRequest}
-            />
-          )}
+          <PhysicalMaterialRequestForm
+            key={formResetKey}
+            isSubmitting={step === "submitting"}
+            onSubmit={submitRequest}
+          />
         </CardContent>
       </Card>
     </div>
