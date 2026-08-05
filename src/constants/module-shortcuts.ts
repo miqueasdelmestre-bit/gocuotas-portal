@@ -1,15 +1,9 @@
-import { CreditCard, Package, Palette } from "lucide-react";
+import { Package, Palette } from "lucide-react";
 
 import type { ModuleShortcut } from "@/types/module-shortcut";
 
+// "Condiciones comerciales" queda oculto a pedido del negocio (ver constants/navigation.ts).
 export const MODULE_SHORTCUTS: ModuleShortcut[] = [
-  {
-    title: "Condiciones comerciales",
-    description:
-      "Consultá las alternativas de plan de cuotas disponibles para tu comercio y solicitá un cambio.",
-    href: "/condiciones-comerciales",
-    icon: CreditCard,
-  },
   {
     title: "Material publicitario online",
     description: "Descargá banners y piezas gráficas para comunicar tus cuotas.",

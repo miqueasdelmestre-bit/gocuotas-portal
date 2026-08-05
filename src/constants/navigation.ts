@@ -1,18 +1,15 @@
-import { CreditCard, Home, Package, Palette } from "lucide-react";
+import { Home, Package, Palette } from "lucide-react";
 
 import type { NavItem } from "@/types/navigation";
 
+// "Condiciones comerciales" queda oculto del menú a pedido del negocio,
+// sin borrar la página ni el módulo — sigue accesible en /condiciones-comerciales
+// por URL directa si hace falta reactivarlo más adelante.
 export const NAV_ITEMS: NavItem[] = [
   {
     label: "Inicio",
     href: "/",
     icon: Home,
-    available: true,
-  },
-  {
-    label: "Condiciones comerciales",
-    href: "/condiciones-comerciales",
-    icon: CreditCard,
     available: true,
   },
   {
