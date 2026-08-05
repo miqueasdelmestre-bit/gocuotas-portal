@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 
 import { AddressAutocompleteInput } from "@/components/shared/address-autocomplete-input";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -48,16 +49,20 @@ export function PhysicalMaterialRequestForm({
 
   const form = useForm<PhysicalMaterialRequestFormValues>({
     resolver: zodResolver(physicalMaterialRequestSchema),
+    mode: "onBlur",
+    reValidateMode: "onBlur",
     defaultValues: {
       brandName: "",
       cuit: "",
-      confirmCuit: "",
+      cuitConfirmed: false,
       email: "",
       phone: "",
       addressText: "",
       branchCount: 1,
     },
   });
+
+  const cuitValue = form.watch("cuit");
 
   function handleSubmit(values: PhysicalMaterialRequestFormValues) {
     onSubmit({
@@ -112,24 +117,20 @@ export function PhysicalMaterialRequestForm({
 
         <FormField
           control={form.control}
-          name="confirmCuit"
+          name="cuitConfirmed"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel className="font-bold">Confirmá tu CUIT</FormLabel>
+            <FormItem className="flex flex-row items-start gap-3 space-y-0">
               <FormControl>
-                <Input
-                  placeholder="20123456789"
-                  inputMode="numeric"
-                  autoComplete="off"
-                  onPaste={(event) => event.preventDefault()}
-                  {...field}
-                  onChange={(event) => field.onChange(event.target.value.replace(/[^\d]/g, ""))}
-                />
+                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
               </FormControl>
-              <p className="text-xs text-muted-foreground">
-                Volvé a escribirlo para confirmar que no haya errores de tipeo.
-              </p>
-              <FormMessage />
+              <div className="space-y-1 leading-none">
+                <FormLabel className="font-normal">
+                  Confirmo que el CUIT que ingresé{" "}
+                  <span className="font-bold">{cuitValue || "(completá el campo de arriba)"}</span>{" "}
+                  es correcto.
+                </FormLabel>
+                <FormMessage />
+              </div>
             </FormItem>
           )}
         />
