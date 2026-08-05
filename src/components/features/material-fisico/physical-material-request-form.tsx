@@ -16,6 +16,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   physicalMaterialRequestSchema,
   type PhysicalMaterialRequestFormValues,
 } from "@/lib/schemas";
@@ -26,6 +33,8 @@ interface PhysicalMaterialRequestFormProps {
   isSubmitting: boolean;
   onSubmit: (values: PhysicalMaterialRequestInput) => void;
 }
+
+const BRANCH_COUNT_OPTIONS = Array.from({ length: 10 }, (_, index) => index + 1);
 
 function FieldExample({ children }: { children: React.ReactNode }) {
   return <p className="text-xs text-muted-foreground">Ej: {children}</p>;
@@ -169,10 +178,23 @@ export function PhysicalMaterialRequestForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Cantidad de sucursales</FormLabel>
-              <FormControl>
-                <Input type="number" min={1} step={1} placeholder="1" {...field} />
-              </FormControl>
-              <FieldExample>3</FieldExample>
+              <Select
+                onValueChange={(value) => field.onChange(Number(value))}
+                value={field.value ? String(field.value) : undefined}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Elegí una cantidad" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {BRANCH_COUNT_OPTIONS.map((count) => (
+                    <SelectItem key={count} value={String(count)}>
+                      {count}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
