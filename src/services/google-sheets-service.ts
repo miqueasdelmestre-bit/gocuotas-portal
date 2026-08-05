@@ -59,7 +59,7 @@ export async function appendPhysicalMaterialRow(values: Array<string | number>):
 function normalizePostalCode(postalCode: string): string {
   const trimmed = postalCode.trim();
   const cpaMatch = /^[A-Za-z]?(\d{4})[A-Za-z]{0,3}$/.exec(trimmed);
-  return cpaMatch ? cpaMatch[1] : trimmed;
+  return cpaMatch?.[1] ?? trimmed;
 }
 
 /**
