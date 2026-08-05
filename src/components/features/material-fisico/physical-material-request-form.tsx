@@ -109,6 +109,9 @@ export function PhysicalMaterialRequestForm({
               <FormControl>
                 <Input type="email" placeholder="nombre@tumarca.com" {...field} />
               </FormControl>
+              <p className="text-xs text-muted-foreground">
+                Acá te llegará el seguimiento del envío.
+              </p>
               <FieldExample>contacto@tumarca.com</FieldExample>
               <FormMessage />
             </FormItem>
