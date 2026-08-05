@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { appendPhysicalMaterialRow, lookupProvinciaLocalidadCp } from "@/services/google-sheets-service";
+import { appendPhysicalMaterialRows, lookupProvinciaLocalidadCp } from "@/services/google-sheets-service";
 import { lookupCuitInGocuotas } from "@/services/databricks-service";
 
 const requestBodySchema = z.object({
@@ -9,7 +9,7 @@ const requestBodySchema = z.object({
   cuit: z.string().min(1),
   email: z.string().email(),
   phone: z.string().min(1),
-  branchCount: z.number(),
+  branchCount: z.number().int().min(1).max(10),
   floorOrUnit: z.string().optional(),
   address: z.object({
     formattedAddress: z.string().min(1),
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: "invalid_payload" }, { status: 400 });
   }
 
-  const { brandName, cuit, email, phone, floorOrUnit, address } = parsed.data;
+  const { brandName, cuit, email, phone, branchCount, floorOrUnit, address } = parsed.data;
 
   // Verificación interna contra GOcuotas — el resultado se guarda solo en el
   // Sheet, nunca viaja de vuelta en esta respuesta ni se muestra al comercio.
@@ -51,24 +51,29 @@ export async function POST(request: Request) {
   // Nunca "0": vacío o el valor ingresado.
   const departamento = floorOrUnit && floorOrUnit !== "0" ? floorOrUnit : "";
 
+  const row = [
+    FIXED_WEIGHT_GRAMS,
+    FIXED_DECLARED_VALUE,
+    numeroInterno,
+    "", // Referencia
+    resolvedName, // Nombre
+    resolvedName, // Apellido
+    deriveDniFromCuit(cuit),
+    email,
+    phone,
+    address.street ?? address.formattedAddress,
+    address.streetNumber ?? "",
+    "", // Piso
+    departamento,
+    "", // Observaciones
+    provinciaLocalidadCp,
+  ];
+
+  // Una fila por sucursal: el courier necesita un envío separado por cada una.
+  const rows = Array.from({ length: branchCount }, () => row);
+
   try {
-    await appendPhysicalMaterialRow([
-      FIXED_WEIGHT_GRAMS,
-      FIXED_DECLARED_VALUE,
-      numeroInterno,
-      "", // Referencia
-      resolvedName, // Nombre
-      resolvedName, // Apellido
-      deriveDniFromCuit(cuit),
-      email,
-      phone,
-      address.street ?? address.formattedAddress,
-      address.streetNumber ?? "",
-      "", // Piso
-      departamento,
-      "", // Observaciones
-      provinciaLocalidadCp,
-    ]);
+    await appendPhysicalMaterialRows(rows);
 
     return NextResponse.json({ success: true });
   } catch (error) {

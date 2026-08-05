@@ -33,11 +33,12 @@ function getSheetsClient() {
 }
 
 /**
- * Agrega una fila al final de la hoja de pedidos de material físico.
- * Server-only: usa una cuenta de servicio de Google Cloud, nunca debe
+ * Agrega una o más filas al final de la hoja de pedidos de material físico
+ * (una fila por sucursal, para que el courier genere un envío por cada
+ * una). Server-only: usa una cuenta de servicio de Google Cloud, nunca debe
  * llamarse desde el cliente.
  */
-export async function appendPhysicalMaterialRow(values: Array<string | number>): Promise<void> {
+export async function appendPhysicalMaterialRows(rows: Array<Array<string | number>>): Promise<void> {
   const { spreadsheetId } = requireConfig();
 
   const sheets = getSheetsClient();
@@ -47,7 +48,7 @@ export async function appendPhysicalMaterialRow(values: Array<string | number>):
     range: PHYSICAL_MATERIAL_SHEET_RANGE,
     valueInputOption: "USER_ENTERED",
     insertDataOption: "INSERT_ROWS",
-    requestBody: { values: [values] },
+    requestBody: { values: rows },
   });
 }
 
