@@ -52,6 +52,17 @@ export async function appendPhysicalMaterialRow(values: Array<string | number>):
 }
 
 /**
+ * Google suele devolver el CPA nuevo (1 letra + 4 dígitos + 3 letras, ej.
+ * "C1043AAZ"), pero NOMENCLADOR usa el código postal viejo de 4 dígitos
+ * (ej. "1043"). Esto extrae esos 4 dígitos si el formato coincide.
+ */
+function normalizePostalCode(postalCode: string): string {
+  const trimmed = postalCode.trim();
+  const cpaMatch = /^[A-Za-z]?(\d{4})[A-Za-z]{0,3}$/.exec(trimmed);
+  return cpaMatch ? cpaMatch[1] : trimmed;
+}
+
+/**
  * Busca un código postal en la hoja NOMENCLADOR (columna A) y devuelve el
  * valor ya formateado de la columna B ("PROVINCIA / LOCALIDAD / CP").
  * Devuelve "" si no encuentra el código postal o si falta configuración.
@@ -75,7 +86,7 @@ export async function lookupProvinciaLocalidadCp(postalCode: string | undefined)
   });
 
   const rows = response.data.values ?? [];
-  const normalizedTarget = postalCode.trim();
+  const normalizedTarget = normalizePostalCode(postalCode);
 
   const match = rows.find((row) => String(row[0] ?? "").trim() === normalizedTarget);
 
