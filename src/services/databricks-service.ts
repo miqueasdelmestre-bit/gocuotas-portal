@@ -15,7 +15,6 @@ const DATABRICKS_WAREHOUSE_ID = process.env.DATABRICKS_WAREHOUSE_ID;
 
 export interface CuitLookupResult {
   isRegisteredInGocuotas: boolean;
-  businessName?: string;
   maxInstallments?: number;
 }
 
@@ -44,7 +43,11 @@ export async function lookupCuitInGocuotas(cuit: string): Promise<CuitLookupResu
       },
       body: JSON.stringify({
         warehouse_id: DATABRICKS_WAREHOUSE_ID,
-        statement: `SELECT user_commerce_business_name, user_commerce_max_number_of_installments FROM prd.gold_dw.dim_users_commerce WHERE user_commerce_cuit = ${digitsOnlyCuit} AND discarded_at IS NULL LIMIT 1`,
+        // Un mismo CUIT puede tener más de un comercio registrado (duplicados).
+        // Ante esa duda, se prioriza el que tenga operaciones entregadas más
+        // recientes — es el que realmente está operando hoy, y de ahí sale la
+        // cantidad máxima de cuotas que ofrece.
+        statement: `SELECT c.user_commerce_max_number_of_installments FROM prd.gold_dw.dim_users_commerce c WHERE c.user_commerce_cuit = ${digitsOnlyCuit} AND c.discarded_at IS NULL ORDER BY (SELECT MAX(o.delivered_at) FROM prd.gold_dw.fact_go_cuotas_orders o WHERE o.user_commerce_id = c.user_commerce_id AND o.delivered_at IS NOT NULL AND o.discarded_at IS NULL) DESC NULLS LAST LIMIT 1`,
         wait_timeout: "10s",
       }),
       signal: AbortSignal.timeout(12000),
@@ -57,11 +60,10 @@ export async function lookupCuitInGocuotas(cuit: string): Promise<CuitLookupResu
 
     if (!row) return NOT_VERIFIED_RESULT;
 
-    const maxInstallments = row[1] != null ? Number(row[1]) : undefined;
+    const maxInstallments = row[0] != null ? Number(row[0]) : undefined;
 
     return {
       isRegisteredInGocuotas: true,
-      businessName: row[0],
       maxInstallments: Number.isFinite(maxInstallments) ? maxInstallments : undefined,
     };
   } catch {

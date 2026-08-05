@@ -44,7 +44,6 @@ export async function POST(request: Request) {
   const verification = await lookupCuitInGocuotas(cuit);
   const provinciaLocalidadCp = await lookupProvinciaLocalidadCp(address.postalCode);
 
-  const resolvedName = verification.businessName || brandName;
   const numeroInterno = verification.maxInstallments
     ? `${verification.maxInstallments} cuotas`
     : "";
@@ -56,8 +55,8 @@ export async function POST(request: Request) {
     FIXED_DECLARED_VALUE,
     numeroInterno,
     "", // Referencia
-    resolvedName, // Nombre
-    resolvedName, // Apellido
+    brandName, // Nombre
+    brandName, // Apellido
     deriveDniFromCuit(cuit),
     email,
     phone,
