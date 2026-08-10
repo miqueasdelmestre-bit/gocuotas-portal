@@ -40,12 +40,12 @@
 
     --radius: 0.85rem;
 
-    /* Sidebar — azul oscuro GOcuotas #1A1A38 */
-    --sidebar-background: 240 37% 16%;
-    --sidebar-foreground: 210 25% 97%;
-    --sidebar-muted: 230 15% 68%;
-    --sidebar-border: 240 30% 24%;
-    --sidebar-accent: 240 26% 22%;
+    /* Sidebar — mismo bordó de marca que --primary (#9E005D) */
+    --sidebar-background: 325 100% 31%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-muted: 325 25% 80%;
+    --sidebar-border: 325 55% 42%;
+    --sidebar-accent: 325 60% 36%;
     --sidebar-accent-foreground: 0 0% 100%;
   }
 }

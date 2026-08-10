@@ -42,11 +42,11 @@ export function SidebarNavLink({ item, onNavigate }: SidebarNavLinkProps) {
       className={cn(
         "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold tracking-tight transition-colors",
         isActive
-          ? "bg-primary/15 text-white"
+          ? "bg-white/15 text-white"
           : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground",
       )}
     >
-      <Icon className={cn("size-[18px] shrink-0", isActive && "text-primary")} />
+      <Icon className="size-[18px] shrink-0" />
       <span className="flex-1 truncate">{item.label}</span>
     </Link>
   );
