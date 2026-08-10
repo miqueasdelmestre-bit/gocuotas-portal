@@ -9,7 +9,8 @@ const SERVICE_ACCOUNT_PRIVATE_KEY = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_K
   "\n",
 );
 
-const PHYSICAL_MATERIAL_SHEET_RANGE = "Sheet1!A:O";
+const PHYSICAL_MATERIAL_SHEET_NAME = "Sheet1";
+const PHYSICAL_MATERIAL_COLUMN_COUNT = 15; // A a O
 const NOMENCLADOR_SHEET_RANGE = "NOMENCLADOR!A:B";
 
 function requireConfig(): { spreadsheetId: string } {
@@ -43,11 +44,23 @@ export async function appendPhysicalMaterialRows(rows: Array<Array<string | numb
 
   const sheets = getSheetsClient();
 
-  await sheets.spreadsheets.values.append({
+  // Calculamos nosotros mismos la próxima fila vacía (mirando solo la
+  // columna A) en vez de usar `values.append`, que detecta "la tabla" con
+  // una heurística propia de Google y a veces desalinea en qué columna
+  // arranca la fila nueva.
+  const columnAResponse = await sheets.spreadsheets.values.get({
     spreadsheetId,
-    range: PHYSICAL_MATERIAL_SHEET_RANGE,
+    range: `${PHYSICAL_MATERIAL_SHEET_NAME}!A:A`,
+  });
+  const existingRowCount = columnAResponse.data.values?.length ?? 0;
+  const nextRow = existingRowCount + 1;
+  const lastRow = nextRow + rows.length - 1;
+  const lastColumnLetter = String.fromCharCode("A".charCodeAt(0) + PHYSICAL_MATERIAL_COLUMN_COUNT - 1);
+
+  await sheets.spreadsheets.values.update({
+    spreadsheetId,
+    range: `${PHYSICAL_MATERIAL_SHEET_NAME}!A${nextRow}:${lastColumnLetter}${lastRow}`,
     valueInputOption: "USER_ENTERED",
-    insertDataOption: "INSERT_ROWS",
     requestBody: { values: rows },
   });
 }
