@@ -14,8 +14,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 235 30% 14%;
 
-    /* Acento primario GOcuotas — magenta #EE2A7B. Único punto para reskinear la app. */
-    --primary: 335 85% 55%;
+    /* Acento primario GOcuotas — #9E005D. Único punto para reskinear la app. */
+    --primary: 325 100% 31%;
     --primary-foreground: 0 0% 100%;
 
     /* Violeta secundario del brandbook — #B985EE */
@@ -36,7 +36,7 @@
 
     --border: 220 15% 90%;
     --input: 220 15% 90%;
-    --ring: 335 85% 55%;
+    --ring: 325 100% 31%;
 
     --radius: 0.85rem;
 
