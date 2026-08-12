@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { NAV_ITEMS } from "@/constants/navigation";
 
 import { SidebarNavLink } from "./sidebar-nav-link";
@@ -9,13 +11,14 @@ interface AppSidebarContentProps {
 export function AppSidebarContent({ onNavigate }: AppSidebarContentProps) {
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-16 items-center gap-2.5 px-5">
-        <div className="flex size-8 items-center justify-center rounded-lg border-2 border-white">
-          <span className="font-display text-sm font-black text-white">G</span>
-        </div>
-        <span className="font-display text-base font-bold tracking-tight text-white">
-          GOcuotas
-        </span>
+      <div className="flex h-16 items-center px-5">
+        <Image
+          src="/logo-gocuotas-white.png"
+          alt="GOcuotas"
+          width={72}
+          height={28}
+          priority
+        />
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-2">

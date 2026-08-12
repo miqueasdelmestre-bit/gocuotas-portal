@@ -12,7 +12,7 @@ export function ExternalResourceView({ resource }: ExternalResourceViewProps) {
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
       <div className="space-y-3">
-        <h1 className="font-display text-3xl font-black tracking-tight text-foreground sm:text-4xl">
+        <h1 className="font-display text-3xl font-black tracking-tight text-[#EE2A7B] sm:text-4xl">
           {resource.title}
         </h1>
       </div>
@@ -22,7 +22,7 @@ export function ExternalResourceView({ resource }: ExternalResourceViewProps) {
           <p className="text-base leading-relaxed text-muted-foreground">
             {resource.description}
           </p>
-          <Button asChild size="lg">
+          <Button asChild size="lg" className="bg-[#EE2A7B] hover:bg-[#EE2A7B]/90">
             <a href={resource.href} target="_blank" rel="noopener noreferrer">
               {resource.ctaLabel}
               <ExternalLink className="size-4" />

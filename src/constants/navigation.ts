@@ -1,4 +1,4 @@
-import { Home, Package, Palette } from "lucide-react";
+import { FileText, Home, Laptop } from "lucide-react";
 
 import type { NavItem } from "@/types/navigation";
 
@@ -15,13 +15,13 @@ export const NAV_ITEMS: NavItem[] = [
   {
     label: "Material publicitario online",
     href: "/material-publicitario-online",
-    icon: Palette,
+    icon: Laptop,
     available: true,
   },
   {
     label: "Material publicitario físico",
     href: "/material-publicitario-fisico",
-    icon: Package,
+    icon: FileText,
     available: true,
   },
 ];

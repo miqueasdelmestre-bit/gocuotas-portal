@@ -243,7 +243,11 @@ export function PhysicalMaterialRequestForm({
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          className="w-full bg-[#EE2A7B] hover:bg-[#EE2A7B]/90"
+          disabled={isSubmitting}
+        >
           {isSubmitting ? "Enviando…" : "Solicitar material"}
         </Button>
       </form>
