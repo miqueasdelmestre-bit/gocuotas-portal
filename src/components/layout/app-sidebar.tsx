@@ -15,8 +15,8 @@ export function AppSidebarContent({ onNavigate }: AppSidebarContentProps) {
         <Image
           src="/logo-gocuotas-white.png"
           alt="GOcuotas"
-          width={72}
-          height={28}
+          width={92}
+          height={36}
           priority
         />
       </div>
