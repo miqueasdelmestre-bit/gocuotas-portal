@@ -35,6 +35,16 @@ function deriveDniFromCuit(cuit: string): string {
   return digitsOnly.slice(2, 10);
 }
 
+/** Fecha del momento del envío, en horario argentino, como dd/mm/aaaa. */
+function formatSubmissionDate(date: Date): string {
+  return new Intl.DateTimeFormat("es-AR", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
+}
+
 export async function POST(request: Request) {
   const parsed = requestBodySchema.safeParse(await request.json());
 
@@ -80,7 +90,7 @@ export async function POST(request: Request) {
   const rows = Array.from({ length: branchCount }, () => row);
 
   try {
-    await appendPhysicalMaterialRows(rows);
+    await appendPhysicalMaterialRows(rows, formatSubmissionDate(new Date()));
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -38,8 +38,16 @@ function getSheetsClient() {
  * (una fila por sucursal, para que el courier genere un envío por cada
  * una). Server-only: usa una cuenta de servicio de Google Cloud, nunca debe
  * llamarse desde el cliente.
+ *
+ * `fechaSolicitud` (ya formateada, ej. "11/08/2026") se escribe en la
+ * columna **Q**, dejando la **P** ("Enviado", un checkbox que ya existe en
+ * el template) completamente intacta — por eso son dos escrituras
+ * separadas en vez de una sola de A a Q.
  */
-export async function appendPhysicalMaterialRows(rows: Array<Array<string | number>>): Promise<void> {
+export async function appendPhysicalMaterialRows(
+  rows: Array<Array<string | number>>,
+  fechaSolicitud: string,
+): Promise<void> {
   const { spreadsheetId } = requireConfig();
 
   const sheets = getSheetsClient();
@@ -62,6 +70,16 @@ export async function appendPhysicalMaterialRows(rows: Array<Array<string | numb
     range: `${PHYSICAL_MATERIAL_SHEET_NAME}!A${nextRow}:${lastColumnLetter}${lastRow}`,
     valueInputOption: "USER_ENTERED",
     requestBody: { values: rows },
+  });
+
+  // Columna Q: fecha de solicitud. La `'` fuerza texto — sin ella, Sheets
+  // (locale en_US de este documento) puede reinterpretar "11/08/2026" como
+  // mes/día en vez de día/mes y guardar una fecha distinta a la real.
+  await sheets.spreadsheets.values.update({
+    spreadsheetId,
+    range: `${PHYSICAL_MATERIAL_SHEET_NAME}!Q${nextRow}:Q${lastRow}`,
+    valueInputOption: "USER_ENTERED",
+    requestBody: { values: rows.map(() => [`'${fechaSolicitud}`]) },
   });
 }
 
