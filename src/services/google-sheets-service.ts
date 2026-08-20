@@ -33,20 +33,27 @@ function getSheetsClient() {
   return google.sheets({ version: "v4", auth });
 }
 
+export interface PhysicalMaterialRowExtras {
+  /** Ya formateada, ej. "11/08/2026" (dd/mm/aaaa, horario argentino). */
+  fechaSolicitud: string;
+  /** utm_source del link con el que llegó (ej. "panel", "correorepo", "soporte"). */
+  origen: string;
+}
+
 /**
  * Agrega una o más filas al final de la hoja de pedidos de material físico
  * (una fila por sucursal, para que el courier genere un envío por cada
  * una). Server-only: usa una cuenta de servicio de Google Cloud, nunca debe
  * llamarse desde el cliente.
  *
- * `fechaSolicitud` (ya formateada, ej. "11/08/2026") se escribe en la
- * columna **Q**, dejando la **P** ("Enviado", un checkbox que ya existe en
- * el template) completamente intacta — por eso son dos escrituras
- * separadas en vez de una sola de A a Q.
+ * `fechaSolicitud` y `origen` se escriben en las columnas **Q** y **R**,
+ * dejando la **P** ("Enviado", un checkbox que ya existe en el template)
+ * completamente intacta — por eso son dos escrituras separadas en vez de
+ * una sola de A a R.
  */
 export async function appendPhysicalMaterialRows(
   rows: Array<Array<string | number>>,
-  fechaSolicitud: string,
+  extras: PhysicalMaterialRowExtras,
 ): Promise<void> {
   const { spreadsheetId } = requireConfig();
 
@@ -72,14 +79,16 @@ export async function appendPhysicalMaterialRows(
     requestBody: { values: rows },
   });
 
-  // Columna Q: fecha de solicitud. La `'` fuerza texto — sin ella, Sheets
-  // (locale en_US de este documento) puede reinterpretar "11/08/2026" como
-  // mes/día en vez de día/mes y guardar una fecha distinta a la real.
+  // Columnas Q (fecha) y R (origen). La `'` en la fecha fuerza texto — sin
+  // ella, Sheets (locale en_US de este documento) puede reinterpretar
+  // "11/08/2026" como mes/día en vez de día/mes y guardar una fecha distinta.
   await sheets.spreadsheets.values.update({
     spreadsheetId,
-    range: `${PHYSICAL_MATERIAL_SHEET_NAME}!Q${nextRow}:Q${lastRow}`,
+    range: `${PHYSICAL_MATERIAL_SHEET_NAME}!Q${nextRow}:R${lastRow}`,
     valueInputOption: "USER_ENTERED",
-    requestBody: { values: rows.map(() => [`'${fechaSolicitud}`]) },
+    requestBody: {
+      values: rows.map(() => [`'${extras.fechaSolicitud}`, extras.origen]),
+    },
   });
 }
 

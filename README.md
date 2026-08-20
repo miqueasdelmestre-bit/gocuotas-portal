@@ -64,13 +64,17 @@ Ver `.env.example`.
      `client_email` de la cuenta de servicio con permiso de **Editor**.
   6. El **Sheet ID** es la parte de la URL entre `/d/` y `/edit`:
      `docs.google.com/spreadsheets/d/`**`ESTE_ES_EL_ID`**`/edit` → `GOOGLE_SHEETS_SPREADSHEET_ID`.
-  7. La hoja (tab) donde se escribe se llama **"Sheet1"** y sus columnas, en orden, son un
-     template de envío/logística:
+  7. La hoja (tab) donde se escribe se llama **"Sheet1"** y sus columnas A-O, en orden, son
+     un template fijo de envío/logística (no lo modificamos):
      `Peso (grs) | Valor declarado ($ S/IVA) | Numero interno | Referencia | Nombre | Apellido | DNI | Email | Telefono | Calle | Numero | Piso | Departamento | Observaciones | Provincia / Localidad / CP`.
+     La columna **P** ("Enviado") ya existe en el template como checkbox y nunca la tocamos.
+     Agregamos dos columnas propias al final: **Q** (fecha de la solicitud, dd/mm/aaaa,
+     horario argentino) y **R** (origen — el `utm_source` del link con el que llegó el
+     comercio al formulario, ej. `panel`, `correorepo`, `soporte`).
   8. Además necesita un segundo tab llamado **"NOMENCLADOR"**, con columna A = código postal
      y columna B = el string ya formateado `PROVINCIA / LOCALIDAD / CP` (por ejemplo
-     `1001` → `BUENOS AIRES / C.A.B.A. / 1001`). Se usa para completar la última columna a
-     partir del código postal que devuelve el autocompletado de Google.
+     `1001` → `BUENOS AIRES / C.A.B.A. / 1001`). Se usa para completar la columna O a partir
+     del código postal que devuelve el autocompletado de Google.
 
   Sin estas tres variables configuradas, el envío del formulario de material físico falla
   (no hay simulación de respaldo, ya que es una integración real).
@@ -81,11 +85,16 @@ Ver `.env.example`.
     el comercio no los completa.
   - **Numero interno** = cantidad de cuotas que GOcuotas tiene registrada para ese CUIT +
     la palabra "cuotas" (vacío si el CUIT no matchea).
-  - **Nombre** y **Apellido** llevan el mismo valor: el nombre de fantasía registrado en
-    GOcuotas si el CUIT matchea, o si no, el nombre de marca que completó el comercio.
+  - **Nombre** y **Apellido** llevan el mismo valor: el nombre de marca que completó el
+    comercio en el formulario. Nunca el nombre de fantasía real de GOcuotas, aunque el CUIT
+    matchee — mostrar/usar ese dato en el formulario público está descartado a propósito
+    (ver la nota de seguridad más abajo).
   - **DNI** se deriva del CUIT (los 8 dígitos del medio, sacando los 2 primeros y el último).
   - **Referencia**, **Piso** y **Observaciones** siempre van vacías. **Departamento** lleva
     el campo opcional "Piso, depto o local" del formulario (nunca el valor `"0"`).
+  - **Origen** (columna R) sale del parámetro `?utm_source=` de la URL de la página
+    (`src/app/material-publicitario-fisico/page.tsx` lo lee de `searchParams`); si el
+    comercio entra sin ese parámetro, queda vacío.
 
 - `DATABRICKS_HOST`, `DATABRICKS_TOKEN`, `DATABRICKS_WAREHOUSE_ID` — habilitan la
   verificación interna de CUIT contra `prd.gold_dw.dim_users_commerce` (ver

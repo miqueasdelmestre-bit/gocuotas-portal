@@ -8,7 +8,12 @@ import { usePhysicalMaterialRequest } from "@/hooks/use-physical-material-reques
 
 import { PhysicalMaterialRequestForm } from "./physical-material-request-form";
 
-export function PhysicalMaterialRequestView() {
+interface PhysicalMaterialRequestViewProps {
+  /** utm_source de la URL (ej. "panel", "correorepo", "soporte"), si vino en el link. */
+  utmSource?: string;
+}
+
+export function PhysicalMaterialRequestView({ utmSource }: PhysicalMaterialRequestViewProps) {
   const { step, submitRequest, reset } = usePhysicalMaterialRequest();
   // Cambiar la key remonta el formulario con los campos en blanco.
   const [formResetKey, setFormResetKey] = useState(0);
@@ -45,6 +50,7 @@ export function PhysicalMaterialRequestView() {
             key={formResetKey}
             isSubmitting={step === "submitting"}
             onSubmit={submitRequest}
+            utmSource={utmSource}
           />
         </CardContent>
       </Card>

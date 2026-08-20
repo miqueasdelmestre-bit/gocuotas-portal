@@ -6,6 +6,14 @@ export const metadata: Metadata = {
   title: "Material publicitario físico · GOcuotas",
 };
 
-export default function MaterialPublicitarioFisicoPage() {
-  return <PhysicalMaterialRequestView />;
+interface MaterialPublicitarioFisicoPageProps {
+  searchParams: Promise<{ utm_source?: string }>;
+}
+
+export default async function MaterialPublicitarioFisicoPage({
+  searchParams,
+}: MaterialPublicitarioFisicoPageProps) {
+  const { utm_source: utmSource } = await searchParams;
+
+  return <PhysicalMaterialRequestView utmSource={utmSource} />;
 }

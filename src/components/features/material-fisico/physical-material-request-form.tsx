@@ -33,6 +33,7 @@ import type { PhysicalMaterialRequestInput } from "@/types/physical-material-req
 interface PhysicalMaterialRequestFormProps {
   isSubmitting: boolean;
   onSubmit: (values: PhysicalMaterialRequestInput) => void;
+  utmSource?: string;
 }
 
 const BRANCH_COUNT_OPTIONS = Array.from({ length: 10 }, (_, index) => index + 1);
@@ -44,6 +45,7 @@ function FieldExample({ children }: { children: React.ReactNode }) {
 export function PhysicalMaterialRequestForm({
   isSubmitting,
   onSubmit,
+  utmSource,
 }: PhysicalMaterialRequestFormProps) {
   const [structuredAddress, setStructuredAddress] = useState<StructuredAddress | null>(null);
 
@@ -74,6 +76,7 @@ export function PhysicalMaterialRequestForm({
       branchCount: values.branchCount,
       floorOrUnit: values.floorOrUnit?.trim() || undefined,
       address: structuredAddress ?? { formattedAddress: values.addressText },
+      utmSource,
     });
   }
 

@@ -16,6 +16,7 @@ const requestBodySchema = z.object({
   phone: z.string().min(1),
   branchCount: z.number().int().min(1).max(10),
   floorOrUnit: z.string().optional(),
+  utmSource: z.string().optional(),
   address: z.object({
     formattedAddress: z.string().min(1),
     street: z.string().optional(),
@@ -52,7 +53,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: "invalid_payload" }, { status: 400 });
   }
 
-  const { brandName, cuit, email, phone, branchCount, floorOrUnit, address } = parsed.data;
+  const { brandName, cuit, email, phone, branchCount, floorOrUnit, utmSource, address } =
+    parsed.data;
 
   // Verificación interna contra GOcuotas — el resultado se guarda solo en el
   // Sheet, nunca viaja de vuelta en esta respuesta ni se muestra al comercio.
@@ -90,7 +92,10 @@ export async function POST(request: Request) {
   const rows = Array.from({ length: branchCount }, () => row);
 
   try {
-    await appendPhysicalMaterialRows(rows, formatSubmissionDate(new Date()));
+    await appendPhysicalMaterialRows(rows, {
+      fechaSolicitud: formatSubmissionDate(new Date()),
+      origen: utmSource ?? "",
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
