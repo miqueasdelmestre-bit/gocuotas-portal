@@ -1,5 +1,6 @@
 "use client";
 
+import { PackageCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -42,6 +43,21 @@ export function PhysicalMaterialRequestView({ utmSource }: PhysicalMaterialReque
           Desde acá vas a poder solicitar material POP para comunicar las cuotas en tu local.
           Completá tus datos y la dirección de entrega para que el envío llegue sin problemas.
         </p>
+      </div>
+
+      <div className="flex max-w-2xl items-start gap-3 rounded-xl border border-[#F6C9DE] bg-[#FCEEF5] p-4">
+        <span className="flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-[#EE2A7B]">
+          <PackageCheck className="h-4 w-4 text-white" />
+        </span>
+        <div className="space-y-1">
+          <p className="text-sm font-semibold text-foreground">Un dato rápido</p>
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            Si te diste de alta hace menos de una semana,{" "}
+            <strong className="font-bold text-foreground">ya te enviamos la cartelería</strong> —
+            no es necesario que la solicites de nuevo. Si pasada la semana todavía no te llegó, ahí
+            sí pedila con este formulario.
+          </p>
+        </div>
       </div>
 
       <Card className="max-w-2xl">
