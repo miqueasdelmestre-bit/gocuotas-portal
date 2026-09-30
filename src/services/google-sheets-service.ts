@@ -47,9 +47,10 @@ export interface PhysicalMaterialRowExtras {
  * llamarse desde el cliente.
  *
  * `fechaSolicitud` y `origen` se escriben en las columnas **Q** y **R**,
- * dejando la **P** ("Enviado", un checkbox que ya existe en el template)
- * completamente intacta — por eso son dos escrituras separadas en vez de
- * una sola de A a R.
+ * dejando de **S** en adelante completamente intacto (reservado para otro
+ * proceso — nunca escribir ahí) y la **P** ("Enviado", un checkbox que ya
+ * existe en el template) también intacta — por eso son dos escrituras
+ * separadas en vez de una sola de A a R.
  */
 export async function appendPhysicalMaterialRows(
   rows: Array<Array<string | number>>,

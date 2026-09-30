@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { formatDateAr } from "@/lib/dates";
 import { appendPhysicalMaterialRows, lookupProvinciaLocalidadCp } from "@/services/google-sheets-service";
 import { lookupCuitInGocuotas } from "@/services/databricks-service";
 
@@ -36,16 +37,6 @@ function deriveDniFromCuit(cuit: string): string {
   return digitsOnly.slice(2, 10);
 }
 
-/** Fecha del momento del envío, en horario argentino, como dd/mm/aaaa. */
-function formatSubmissionDate(date: Date): string {
-  return new Intl.DateTimeFormat("es-AR", {
-    timeZone: "America/Argentina/Buenos_Aires",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(date);
-}
-
 export async function POST(request: Request) {
   const parsed = requestBodySchema.safeParse(await request.json());
 
@@ -64,9 +55,19 @@ export async function POST(request: Request) {
     lookupProvinciaLocalidadCp(address.postalCode),
   ]);
 
-  const numeroInterno = verification.maxInstallments
-    ? `${verification.maxInstallments} cuotas`
-    : "";
+  // "Numero interno" queda vacío a propósito —es la señal para que el
+  // proceso que arma los envíos no tome la fila— en dos casos que no se
+  // resuelven acá:
+  // 1. Comercio dado de alta hace menos de 10 días: ya recibe su cartelería
+  //    inicial por otro proceso. Si igual la quiere pasados los 10 días,
+  //    tiene que volver a pedirla (nuevo pedido, evaluado de cero).
+  // 2. CUIT todavía no verificado en GOcuotas (o Databricks no respondió):
+  //    si más adelante se verifica, lo suma el otro proceso que ya envía
+  //    cartelería por alta/verificación — no hay retry propio acá.
+  const numeroInterno =
+    verification.maxInstallments && !verification.recentlyRegistered
+      ? `${verification.maxInstallments} cuotas`
+      : "";
   // Nunca "0": vacío o el valor ingresado.
   const departamento = floorOrUnit && floorOrUnit !== "0" ? floorOrUnit : "";
 
@@ -93,7 +94,7 @@ export async function POST(request: Request) {
 
   try {
     await appendPhysicalMaterialRows(rows, {
-      fechaSolicitud: formatSubmissionDate(new Date()),
+      fechaSolicitud: formatDateAr(new Date()),
       origen: utmSource ?? "",
     });
 

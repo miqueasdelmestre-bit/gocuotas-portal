@@ -13,9 +13,16 @@ const DATABRICKS_HOST = process.env.DATABRICKS_HOST;
 const DATABRICKS_TOKEN = process.env.DATABRICKS_TOKEN;
 const DATABRICKS_WAREHOUSE_ID = process.env.DATABRICKS_WAREHOUSE_ID;
 
+// Un comercio recién dado de alta ya recibe su cartelería inicial por otro
+// proceso automático — si igual completa este formulario antes de los 10
+// días, no hay que despachar un envío duplicado.
+const MINIMUM_DAYS_SINCE_REGISTRATION = 10;
+
 export interface CuitLookupResult {
   isRegisteredInGocuotas: boolean;
   maxInstallments?: number;
+  /** true si el comercio se dio de alta hace menos de 10 días. */
+  recentlyRegistered?: boolean;
 }
 
 const NOT_VERIFIED_RESULT: CuitLookupResult = { isRegisteredInGocuotas: false };
@@ -49,7 +56,7 @@ export async function lookupCuitInGocuotas(cuit: string): Promise<CuitLookupResu
         // cantidad máxima de cuotas que ofrece. La subquery correlacionada
         // tiene que ir en el SELECT (con alias) y no directo en el ORDER BY:
         // Spark SQL no soporta correlated scalar subqueries ahí.
-        statement: `SELECT c.user_commerce_max_number_of_installments, (SELECT MAX(o.delivered_at) FROM prd.gold_dw.fact_go_cuotas_orders o WHERE o.user_commerce_id = c.user_commerce_id AND o.delivered_at IS NOT NULL AND o.discarded_at IS NULL) AS last_order FROM prd.gold_dw.dim_users_commerce c WHERE c.user_commerce_cuit = ${digitsOnlyCuit} AND c.discarded_at IS NULL ORDER BY last_order DESC NULLS LAST LIMIT 1`,
+        statement: `SELECT c.user_commerce_max_number_of_installments, c.created_date, (SELECT MAX(o.delivered_at) FROM prd.gold_dw.fact_go_cuotas_orders o WHERE o.user_commerce_id = c.user_commerce_id AND o.delivered_at IS NOT NULL AND o.discarded_at IS NULL) AS last_order FROM prd.gold_dw.dim_users_commerce c WHERE c.user_commerce_cuit = ${digitsOnlyCuit} AND c.discarded_at IS NULL ORDER BY last_order DESC NULLS LAST LIMIT 1`,
         // 50s es el máximo que admite la API de Databricks para esperar en la
         // misma request — hace falta, porque el warehouse suele estar
         // "dormido" (auto-suspendido) y tarda en despertar si no hubo
@@ -78,10 +85,16 @@ export async function lookupCuitInGocuotas(cuit: string): Promise<CuitLookupResu
     if (!row) return NOT_VERIFIED_RESULT;
 
     const maxInstallments = row[0] != null ? Number(row[0]) : undefined;
+    const createdDate = row[1] ? new Date(row[1]) : undefined;
+    const daysSinceRegistration = createdDate
+      ? (Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24)
+      : undefined;
 
     return {
       isRegisteredInGocuotas: true,
       maxInstallments: Number.isFinite(maxInstallments) ? maxInstallments : undefined,
+      recentlyRegistered:
+        daysSinceRegistration != null && daysSinceRegistration < MINIMUM_DAYS_SINCE_REGISTRATION,
     };
   } catch {
     // Falla silenciosa: si Databricks no responde, la solicitud igual se

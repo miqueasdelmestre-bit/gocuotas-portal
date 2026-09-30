@@ -52,10 +52,10 @@ export function PhysicalMaterialRequestView({ utmSource }: PhysicalMaterialReque
         <div className="space-y-1">
           <p className="text-sm font-semibold text-foreground">Un dato rápido</p>
           <p className="text-xs leading-relaxed text-muted-foreground">
-            Si te diste de alta hace menos de una semana,{" "}
+            Si te diste de alta hace menos de 10 días,{" "}
             <strong className="font-bold text-foreground">ya te enviamos la cartelería</strong> —
-            no es necesario que la solicites de nuevo. Si pasada la semana todavía no te llegó, ahí
-            sí pedila con este formulario.
+            no es necesario que la solicites de nuevo. Si pasados los 10 días todavía no te
+            llegó, ahí sí pedila con este formulario.
           </p>
         </div>
       </div>

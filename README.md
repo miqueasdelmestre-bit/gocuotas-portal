@@ -70,7 +70,9 @@ Ver `.env.example`.
      La columna **P** ("Enviado") ya existe en el template como checkbox y nunca la tocamos.
      Agregamos dos columnas propias al final: **Q** (fecha de la solicitud, dd/mm/aaaa,
      horario argentino) y **R** (origen — el `utm_source` del link con el que llegó el
-     comercio al formulario, ej. `panel`, `correorepo`, `soporte`).
+     comercio al formulario, ej. `panel`, `correorepo`, `soporte`). **Nunca se escribe nada
+     de la columna S en adelante** — están reservadas para otro proceso y escribirles lo
+     rompe.
   8. Además necesita un segundo tab llamado **"NOMENCLADOR"**, con columna A = código postal
      y columna B = el string ya formateado `PROVINCIA / LOCALIDAD / CP` (por ejemplo
      `1001` → `BUENOS AIRES / C.A.B.A. / 1001`). Se usa para completar la columna O a partir
@@ -84,7 +86,21 @@ Ver `.env.example`.
   - **Peso** y **Valor declarado** son fijos (90 grs / $6.000), definidos en el código —
     el comercio no los completa.
   - **Numero interno** = cantidad de cuotas que GOcuotas tiene registrada para ese CUIT +
-    la palabra "cuotas" (vacío si el CUIT no matchea).
+    la palabra "cuotas". Queda **vacío a propósito** (nunca se completa en el momento, y
+    esta app nunca la completa después) en dos casos — es la señal para que el proceso que
+    arma los envíos no tome la fila:
+    - **CUIT todavía no verificado en GOcuotas** (o Databricks no respondió a tiempo). Si
+      el comercio se verifica más adelante, **no hay retry acá**: lo tiene que sumar el
+      otro proceso que ya envía cartelería por alta/verificación (ajustando su propia
+      query para que también capture verificaciones tardías, no solo altas recientes).
+    - **Comercio dado de alta hace menos de 10 días** (ya recibió su cartelería por ese
+      mismo otro proceso — ver el aviso en la propia página del formulario). Si pasados
+      los 10 días el comercio todavía quiere la cartelería, tiene que volver a pedirla con
+      el formulario — eso genera un pedido nuevo, evaluado de cero.
+  - **Dirección**: el comercio tiene que elegir una sugerencia real del autocompletado de
+    Google Places — tipear una dirección a mano sin seleccionarla de la lista no pasa la
+    validación del formulario (evita filas sin código postal, que después no matchean
+    contra NOMENCLADOR).
   - **Nombre** y **Apellido** llevan el mismo valor: el nombre de marca que completó el
     comercio en el formulario. Nunca el nombre de fantasía real de GOcuotas, aunque el CUIT
     matchee — mostrar/usar ese dato en el formulario público está descartado a propósito

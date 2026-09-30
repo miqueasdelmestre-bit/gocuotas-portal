@@ -44,6 +44,11 @@ export const physicalMaterialRequestSchema = z.object({
   addressText: z
     .string()
     .min(8, "Ingresá la dirección completa (calle y altura) y elegí la opción correcta"),
+  // Se completa solo al elegir una sugerencia de Google Places (nunca tipeando a mano) —
+  // exigirlo evita filas sin código postal, que después no matchean contra NOMENCLADOR.
+  addressPostalCode: z
+    .string()
+    .min(1, "Elegí la dirección de la lista de sugerencias para que se complete el código postal"),
   branchCount: z.coerce
     .number({ invalid_type_error: "Ingresá la cantidad de sucursales" })
     .int("Ingresá un número entero")

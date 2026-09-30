@@ -60,6 +60,7 @@ export function PhysicalMaterialRequestForm({
       email: "",
       phone: "",
       addressText: "",
+      addressPostalCode: "",
       branchCount: 1,
       floorOrUnit: "",
     },
@@ -190,15 +191,29 @@ export function PhysicalMaterialRequestForm({
                 <AddressAutocompleteInput
                   id={field.name}
                   value={field.value}
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    // Tipear a mano invalida la selección anterior: si no se
+                    // vuelve a elegir una sugerencia, no hay CP y no se puede enviar.
+                    setStructuredAddress(null);
+                    form.setValue("addressPostalCode", "", { shouldValidate: form.formState.isSubmitted });
+                  }}
                   onAddressSelected={(address) => {
                     setStructuredAddress(address);
                     field.onChange(address.formattedAddress);
+                    form.setValue("addressPostalCode", address.postalCode ?? "", {
+                      shouldValidate: true,
+                    });
                   }}
                 />
               </FormControl>
               <FieldExample>Av. Corrientes 1234 (elegí la opción correcta de la lista)</FieldExample>
               <FormMessage />
+              {form.formState.errors.addressPostalCode && (
+                <p className="text-sm font-medium text-destructive">
+                  {form.formState.errors.addressPostalCode.message}
+                </p>
+              )}
             </FormItem>
           )}
         />
