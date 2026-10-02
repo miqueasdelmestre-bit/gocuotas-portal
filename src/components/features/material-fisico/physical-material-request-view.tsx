@@ -12,9 +12,16 @@ import { PhysicalMaterialRequestForm } from "./physical-material-request-form";
 interface PhysicalMaterialRequestViewProps {
   /** utm_source de la URL (ej. "panel", "correorepo", "soporte"), si vino en el link. */
   utmSource?: string;
+  /** CUIT que vino en el link (ya validado): se muestra precargado y no editable. */
+  lockedCuit?: string;
+  initialBrandName?: string;
 }
 
-export function PhysicalMaterialRequestView({ utmSource }: PhysicalMaterialRequestViewProps) {
+export function PhysicalMaterialRequestView({
+  utmSource,
+  lockedCuit,
+  initialBrandName,
+}: PhysicalMaterialRequestViewProps) {
   const { step, submitRequest, reset } = usePhysicalMaterialRequest();
   // Cambiar la key remonta el formulario con los campos en blanco.
   const [formResetKey, setFormResetKey] = useState(0);
@@ -67,6 +74,8 @@ export function PhysicalMaterialRequestView({ utmSource }: PhysicalMaterialReque
             isSubmitting={step === "submitting"}
             onSubmit={submitRequest}
             utmSource={utmSource}
+            lockedCuit={lockedCuit}
+            initialBrandName={initialBrandName}
           />
         </CardContent>
       </Card>

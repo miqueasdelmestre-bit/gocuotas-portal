@@ -34,6 +34,8 @@ interface PhysicalMaterialRequestFormProps {
   isSubmitting: boolean;
   onSubmit: (values: PhysicalMaterialRequestInput) => void;
   utmSource?: string;
+  lockedCuit?: string;
+  initialBrandName?: string;
 }
 
 const BRANCH_COUNT_OPTIONS = Array.from({ length: 10 }, (_, index) => index + 1);
@@ -46,6 +48,8 @@ export function PhysicalMaterialRequestForm({
   isSubmitting,
   onSubmit,
   utmSource,
+  lockedCuit,
+  initialBrandName,
 }: PhysicalMaterialRequestFormProps) {
   const [structuredAddress, setStructuredAddress] = useState<StructuredAddress | null>(null);
 
@@ -54,9 +58,9 @@ export function PhysicalMaterialRequestForm({
     mode: "onBlur",
     reValidateMode: "onBlur",
     defaultValues: {
-      brandName: "",
-      cuit: "",
-      cuitConfirmed: false,
+      brandName: initialBrandName ?? "",
+      cuit: lockedCuit ?? "",
+      cuitConfirmed: !!lockedCuit,
       email: "",
       phone: "",
       addressText: "",
@@ -71,7 +75,7 @@ export function PhysicalMaterialRequestForm({
   function handleSubmit(values: PhysicalMaterialRequestFormValues) {
     onSubmit({
       brandName: values.brandName,
-      cuit: values.cuit,
+      cuit: lockedCuit ?? values.cuit,
       email: values.email,
       phone: values.phone,
       branchCount: values.branchCount,
@@ -112,15 +116,24 @@ export function PhysicalMaterialRequestForm({
                   placeholder="20123456789"
                   inputMode="numeric"
                   {...field}
+                  readOnly={!!lockedCuit}
+                  className={lockedCuit ? "bg-muted text-muted-foreground" : undefined}
                   onChange={(event) => field.onChange(event.target.value.replace(/[^\d]/g, ""))}
                 />
               </FormControl>
-              <FieldExample>20123456789</FieldExample>
+              {lockedCuit ? (
+                <p className="text-xs text-muted-foreground">
+                  Ya viene cargado con el CUIT de tu comercio, no hace falta cambiarlo.
+                </p>
+              ) : (
+                <FieldExample>20123456789</FieldExample>
+              )}
               <FormMessage />
             </FormItem>
           )}
         />
 
+        {!lockedCuit && (
         <FormField
           control={form.control}
           name="cuitConfirmed"
@@ -140,6 +153,7 @@ export function PhysicalMaterialRequestForm({
             </FormItem>
           )}
         />
+        )}
 
         <FormField
           control={form.control}
